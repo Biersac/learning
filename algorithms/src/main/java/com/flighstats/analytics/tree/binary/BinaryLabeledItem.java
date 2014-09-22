@@ -1,9 +1,10 @@
-package com.flighstats.analytics.tree;
+package com.flighstats.analytics.tree.binary;
 
+import com.flighstats.analytics.tree.Item;
 import lombok.Value;
 
 @Value
-public class LabeledItem {
+public class BinaryLabeledItem {
     Item item;
     boolean label;
 

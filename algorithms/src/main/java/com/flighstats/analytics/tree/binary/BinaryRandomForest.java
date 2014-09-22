@@ -1,5 +1,6 @@
-package com.flighstats.analytics.tree;
+package com.flighstats.analytics.tree.binary;
 
+import com.flighstats.analytics.tree.Item;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -8,10 +9,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @EqualsAndHashCode
 @ToString
-public class RandomForest {
-    private final List<DecisionTree> trees;
+public class BinaryRandomForest {
+    private final List<BinaryDecisionTree> trees;
 
-    public RandomForest(List<DecisionTree> trees) {
+    public BinaryRandomForest(List<BinaryDecisionTree> trees) {
         this.trees = trees;
     }
 
