@@ -11,6 +11,3 @@ So far, we have implemented:
 
 * ID3 decision tree + training (very simplistic, as the goal was to provide an underlying tree for the Random Forest)
 * Random Forest algorithm, using underlying ID3 trees.
-
-
-
