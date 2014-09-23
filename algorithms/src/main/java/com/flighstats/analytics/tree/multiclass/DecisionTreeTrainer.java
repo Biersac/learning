@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 
 import java.util.*;
 
-import static com.google.common.collect.Lists.transform;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
@@ -21,18 +20,35 @@ public class DecisionTreeTrainer {
      * http://www.cs.princeton.edu/courses/archive/spr07/cos424/papers/mitchell-dectrees.pdf
      */
     public DecisionTree train(String name, List<LabeledItem> labeledItems, List<Object> attributesToConsider, int defaultLabel) {
-        return new DecisionTree(name, train(labeledItems, attributesToConsider, attributesToConsider.size(), true, defaultLabel));
+        Map<Object, Set<Integer>> validValuesForAttributes = validValuesForAttributes(labeledItems, attributesToConsider);
+        return new DecisionTree(name, trainRecursively(labeledItems, attributesToConsider, attributesToConsider.size(), true, defaultLabel, validValuesForAttributes));
     }
 
     /**
      * For use in training random forests.
-     * Suggestion is to use sqrt(# of features) as the maxFeaturesToUse.
+     * Suggestion is to use sqrt(# of features) as the maxFeaturesToUse (although Breiman says 2 works fine).
      */
-    public DecisionTree train(String name, List<LabeledItem> labeledItems, List<Object> attributesToConsider, int maxFeaturesToUse, boolean removeFeaturesAtNode, int defaultLabel) {
-        return new DecisionTree(name, train(labeledItems, attributesToConsider, maxFeaturesToUse, removeFeaturesAtNode, defaultLabel));
+    public DecisionTree train(String name, List<LabeledItem> labeledItems, List<Object> attributesToConsider, int maxFeaturesToUse, boolean removeFeaturesAtNode, int defaultLabel, Map<Object, Set<Integer>> validValuesForAttributes) {
+        return new DecisionTree(name, trainRecursively(labeledItems, attributesToConsider, maxFeaturesToUse, removeFeaturesAtNode, defaultLabel, validValuesForAttributes));
     }
 
-    private TreeNode train(List<LabeledItem> labeledItems, List<Object> attributesToConsider, int maxFeaturesToUse, boolean removeFeaturesAtNode, int defaultLabel) {
+    Map<Object, Set<Integer>> validValuesForAttributes(List<LabeledItem> items, List<Object> attributes) {
+        Map<Object, Set<Integer>> results = new HashMap<>();
+        for (Object attribute : attributes) {
+            results.put(attribute, new HashSet<>());
+        }
+        for (Object attribute : attributes) {
+            for (LabeledItem item : items) {
+                results.get(attribute).add(item.evaluate(attribute));
+            }
+        }
+        return results;
+    }
+
+    private TreeNode trainRecursively(List<LabeledItem> labeledItems, List<Object> attributesToConsider, int maxFeaturesToUse, boolean removeFeaturesAtNode, int defaultLabel, Map<Object, Set<Integer>> validValuesForAttributes) {
+        if (labeledItems.isEmpty()) {
+            return new TreeNode(defaultLabel);
+        }
         if (allAreSameLabel(labeledItems)) {
             return new TreeNode(labeledItems.get(0).getLabel());
         }
@@ -45,10 +61,10 @@ public class DecisionTreeTrainer {
             newAttributes.remove(bestAttribute);
         }
 
-        Set<Integer> valuesForAttribute = new HashSet<>(transform(labeledItems, li -> li.evaluate(bestAttribute)));
+        Set<Integer> valuesForAttribute = validValuesForAttributes.get(bestAttribute);
         Map<Integer, TreeNode> children = new HashMap<>();
         for (Integer integer : valuesForAttribute) {
-            children.put(integer, train(labeledItems.stream().filter(li -> integer.equals(li.evaluate(bestAttribute))).collect(toList()), newAttributes, maxFeaturesToUse, removeFeaturesAtNode, defaultLabel));
+            children.put(integer, trainRecursively(labeledItems.stream().filter(li -> integer.equals(li.evaluate(bestAttribute))).collect(toList()), newAttributes, maxFeaturesToUse, removeFeaturesAtNode, defaultLabel, validValuesForAttributes));
         }
 
         return new TreeNode(bestAttribute, children);
