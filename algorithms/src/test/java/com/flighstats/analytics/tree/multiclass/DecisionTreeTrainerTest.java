@@ -28,7 +28,7 @@ public class DecisionTreeTrainerTest {
         when(entropyCalculator.entropyGain(items, "sour")).thenReturn(0.07);
 
         DecisionTreeTrainer testClass = new DecisionTreeTrainer(entropyCalculator);
-        assertEquals(Optional.of((Object) "sour"), testClass.bestEntropyGain(items, Arrays.asList("bitter", "sour", "sweet"), 3));
+        assertEquals(Optional.of("sour"), testClass.bestEntropyGain(items, Arrays.asList("bitter", "sour", "sweet"), 3));
     }
 
     @Test
@@ -59,8 +59,8 @@ public class DecisionTreeTrainerTest {
         assertEquals((Integer) 1, tree.evaluate(new Item("sour", fruitData(false, true, false))));
     }
 
-    private Map<Object, Integer> fruitData(boolean sweet, boolean sour, boolean bitter) {
-        Map<Object, Integer> data = new HashMap<>();
+    private Map<String, Integer> fruitData(boolean sweet, boolean sour, boolean bitter) {
+        Map<String, Integer> data = new HashMap<>();
         data.put("sour", sour ? 1 : 0);
         data.put("sweet", sweet ? 1 : 0);
         data.put("bitter", bitter ? 1 : 0);
@@ -90,19 +90,18 @@ public class DecisionTreeTrainerTest {
         );
 
         DecisionTreeTrainer testClass = new DecisionTreeTrainer(new EntropyCalculator());
-        List<Object> attributes = Arrays.asList("outlook", "temp", "humidity", "wind");
-        Optional<Object> bestEntropyGain = testClass.bestEntropyGain(trainingData, attributes, 4);
+        List<String> attributes = Arrays.asList("outlook", "temp", "humidity", "wind");
+        Optional<String> bestEntropyGain = testClass.bestEntropyGain(trainingData, attributes, 4);
         assertEquals(Optional.<Object>of("outlook"), bestEntropyGain);
 
         DecisionTree tennis = testClass.train("tennis", trainingData, attributes, 0);
-        tennis.printStructure();
 
         assertEquals((Integer) 0, tennis.evaluate(new Item("2", tennisData(RAIN, HOT, HIGH, STRONG))));
         //todo: figure out some assertions to make here?
     }
 
-    private Map<Object, Integer> tennisData(Outlook outlook, Temp temperature, Humidity humidity, Wind wind) {
-        Map<Object, Integer> data = new HashMap<>();
+    private Map<String, Integer> tennisData(Outlook outlook, Temp temperature, Humidity humidity, Wind wind) {
+        Map<String, Integer> data = new HashMap<>();
         data.put("outlook", outlook.value);
         data.put("temp", temperature.value);
         data.put("humidity", humidity.value);

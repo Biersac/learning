@@ -10,7 +10,7 @@ import java.util.Map;
 @Value
 @AllArgsConstructor
 public class BinaryTreeNode {
-    Object key;
+    String key;
     boolean label;
     Map<Integer, BinaryTreeNode> branches;
 
@@ -18,7 +18,7 @@ public class BinaryTreeNode {
         this(null, label, null);
     }
 
-    public BinaryTreeNode(Object key, Map<Integer, BinaryTreeNode> branches) {
+    public BinaryTreeNode(String key, Map<Integer, BinaryTreeNode> branches) {
         this(key, false, branches);
     }
 

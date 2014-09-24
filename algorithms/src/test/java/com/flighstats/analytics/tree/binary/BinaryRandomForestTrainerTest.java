@@ -26,7 +26,7 @@ public class BinaryRandomForestTrainerTest {
         List<BinaryLabeledItem> trainingData = buildTennisTrainingSet();
 
         BinaryRandomForestTrainer testClass = new BinaryRandomForestTrainer(new BinaryDecisionTreeTrainer(new BinaryEntropyCalculator()));
-        List<Object> attributes = tennisAttributes();
+        List<String> attributes = tennisAttributes();
 
         TrainingResults result = testClass.train("tennis", 500, trainingData, attributes);
         BinaryRandomForest tennis = result.getForest();
@@ -48,7 +48,7 @@ public class BinaryRandomForestTrainerTest {
         assertEquals(randomForest, deserialized);
     }
 
-    private List<Object> tennisAttributes() {
+    private List<String> tennisAttributes() {
         return Arrays.asList("outlook", "temp", "humidity", "wind");
     }
 
@@ -75,8 +75,8 @@ public class BinaryRandomForestTrainerTest {
         );
     }
 
-    private Map<Object, Integer> tennisData(Outlook outlook, Temp temperature, Humidity humidity, Wind wind) {
-        Map<Object, Integer> data = new HashMap<>();
+    private Map<String, Integer> tennisData(Outlook outlook, Temp temperature, Humidity humidity, Wind wind) {
+        Map<String, Integer> data = new HashMap<>();
         data.put("outlook", outlook.value);
         data.put("temp", temperature.value);
         data.put("humidity", humidity.value);

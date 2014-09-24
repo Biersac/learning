@@ -59,8 +59,8 @@ public class BinaryDecisionTreeTrainerTest {
         assertTrue(tree.evaluate(new Item("sour", fruitData(false, true, false))));
     }
 
-    private Map<Object, Integer> fruitData(boolean sweet, boolean sour, boolean bitter) {
-        Map<Object, Integer> data = new HashMap<>();
+    private Map<String, Integer> fruitData(boolean sweet, boolean sour, boolean bitter) {
+        Map<String, Integer> data = new HashMap<>();
         data.put("sour", sour ? 1 : 0);
         data.put("sweet", sweet ? 1 : 0);
         data.put("bitter", bitter ? 1 : 0);
@@ -90,8 +90,8 @@ public class BinaryDecisionTreeTrainerTest {
         );
 
         BinaryDecisionTreeTrainer testClass = new BinaryDecisionTreeTrainer(new BinaryEntropyCalculator());
-        List<Object> attributes = Arrays.asList("outlook", "temp", "humidity", "wind");
-        Optional<Object> bestEntropyGain = testClass.bestEntropyGain(trainingData, attributes, 4);
+        List<String> attributes = Arrays.asList("outlook", "temp", "humidity", "wind");
+        Optional<String> bestEntropyGain = testClass.bestEntropyGain(trainingData, attributes, 4);
         assertEquals(Optional.<Object>of("outlook"), bestEntropyGain);
 
         BinaryDecisionTree tennis = testClass.train("tennis", trainingData, attributes);
@@ -101,8 +101,8 @@ public class BinaryDecisionTreeTrainerTest {
         //todo: figure out some assertions to make here?
     }
 
-    private Map<Object, Integer> tennisData(Outlook outlook, Temp temperature, Humidity humidity, Wind wind) {
-        Map<Object, Integer> data = new HashMap<>();
+    private Map<String, Integer> tennisData(Outlook outlook, Temp temperature, Humidity humidity, Wind wind) {
+        Map<String, Integer> data = new HashMap<>();
         data.put("outlook", outlook.value);
         data.put("temp", temperature.value);
         data.put("humidity", humidity.value);

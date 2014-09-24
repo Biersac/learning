@@ -15,9 +15,9 @@ public class EntropyCalculatorTest {
     @Test
     public void testEntropy_50_50() throws Exception {
         EntropyCalculator testClass = new EntropyCalculator();
-        Map<Object, Integer> positiveValues = new HashMap<>();
+        Map<String, Integer> positiveValues = new HashMap<>();
         positiveValues.put("sweet", 1);
-        Map<Object, Integer> negativeValues = new HashMap<>();
+        Map<String, Integer> negativeValues = new HashMap<>();
         negativeValues.put("sweet", 0);
 
         List<LabeledItem> input = Arrays.asList(
@@ -39,9 +39,9 @@ public class EntropyCalculatorTest {
     @Test
     public void testEntropy_allPositive() throws Exception {
         EntropyCalculator testClass = new EntropyCalculator();
-        Map<Object, Integer> positiveValues = new HashMap<>();
+        Map<String, Integer> positiveValues = new HashMap<>();
         positiveValues.put("sweet", 1);
-        Map<Object, Integer> negativeValues = new HashMap<>();
+        Map<String, Integer> negativeValues = new HashMap<>();
         negativeValues.put("sweet", 0);
 
         double entropy = testClass.entropy(Arrays.asList(
@@ -61,9 +61,9 @@ public class EntropyCalculatorTest {
     @Test
     public void testEntropy_allNegative() throws Exception {
         EntropyCalculator testClass = new EntropyCalculator();
-        Map<Object, Integer> positiveValues = new HashMap<>();
+        Map<String, Integer> positiveValues = new HashMap<>();
         positiveValues.put("sweet", 1);
-        Map<Object, Integer> negativeValues = new HashMap<>();
+        Map<String, Integer> negativeValues = new HashMap<>();
         negativeValues.put("sweet", 0);
 
         double entropy = testClass.entropy(Arrays.asList(
@@ -83,9 +83,9 @@ public class EntropyCalculatorTest {
     @Test
     public void testEntropy_9_5() throws Exception {
         EntropyCalculator testClass = new EntropyCalculator();
-        Map<Object, Integer> negativeValues = new HashMap<>();
+        Map<String, Integer> negativeValues = new HashMap<>();
         negativeValues.put("sweet", 0);
-        Map<Object, Integer> positiveValues = new HashMap<>();
+        Map<String, Integer> positiveValues = new HashMap<>();
         positiveValues.put("sweet", 1);
 
         double entropy = testClass.entropy(Arrays.asList(
@@ -116,7 +116,7 @@ public class EntropyCalculatorTest {
     @Test
     public void testLabelEntropy_9_5() throws Exception {
         EntropyCalculator testClass = new EntropyCalculator();
-        Map<Object, Integer> values = new HashMap<>();
+        Map<String, Integer> values = new HashMap<>();
 
         double entropy = testClass.labelEntropy(Arrays.asList(
                 new LabeledItem(new Item("one", values), 1),
@@ -141,9 +141,9 @@ public class EntropyCalculatorTest {
     @Test
     public void testEntropyGain_9_5() throws Exception {
         EntropyCalculator testClass = new EntropyCalculator();
-        Map<Object, Integer> negativeValues = new HashMap<>();
+        Map<String, Integer> negativeValues = new HashMap<>();
         negativeValues.put("sweet", 0);
-        Map<Object, Integer> positiveValues = new HashMap<>();
+        Map<String, Integer> positiveValues = new HashMap<>();
         positiveValues.put("sweet", 1);
 
         double gain = testClass.entropyGain(Arrays.asList(

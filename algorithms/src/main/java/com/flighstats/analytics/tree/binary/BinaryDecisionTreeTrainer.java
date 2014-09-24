@@ -20,7 +20,7 @@ public class BinaryDecisionTreeTrainer {
      * Classic ID3 decision tree.
      * http://www.cs.princeton.edu/courses/archive/spr07/cos424/papers/mitchell-dectrees.pdf
      */
-    public BinaryDecisionTree train(String name, List<BinaryLabeledItem> labeledItems, List<Object> attributesToConsider) {
+    public BinaryDecisionTree train(String name, List<BinaryLabeledItem> labeledItems, List<String> attributesToConsider) {
         return new BinaryDecisionTree(name, train(labeledItems, attributesToConsider, attributesToConsider.size(), true));
     }
 
@@ -28,11 +28,11 @@ public class BinaryDecisionTreeTrainer {
      * For use in training random forests.
      * Suggestion is to use sqrt(# of features) as the maxFeaturesToUse.
      */
-    public BinaryDecisionTree train(String name, List<BinaryLabeledItem> labeledItems, List<Object> attributesToConsider, int maxFeaturesToUse, boolean removeFeaturesAtNode) {
+    public BinaryDecisionTree train(String name, List<BinaryLabeledItem> labeledItems, List<String> attributesToConsider, int maxFeaturesToUse, boolean removeFeaturesAtNode) {
         return new BinaryDecisionTree(name, train(labeledItems, attributesToConsider, maxFeaturesToUse, removeFeaturesAtNode));
     }
 
-    private BinaryTreeNode train(List<BinaryLabeledItem> labeledItems, List<Object> attributesToConsider, int maxFeaturesToUse, boolean removeFeaturesAtNode) {
+    private BinaryTreeNode train(List<BinaryLabeledItem> labeledItems, List<String> attributesToConsider, int maxFeaturesToUse, boolean removeFeaturesAtNode) {
         if (allArePositive(labeledItems)) {
             return new BinaryTreeNode(true);
         }
@@ -44,8 +44,8 @@ public class BinaryDecisionTreeTrainer {
             //todo: replace this "default" value with something that can be passed in.
             return new BinaryTreeNode(mostCommonLabel(labeledItems));
         }
-        Object bestAttribute = bestEntropyGain(labeledItems, attributesToConsider, maxFeaturesToUse).get();
-        List<Object> newAttributes = new ArrayList<>(attributesToConsider);
+        String bestAttribute = bestEntropyGain(labeledItems, attributesToConsider, maxFeaturesToUse).get();
+        List<String> newAttributes = new ArrayList<>(attributesToConsider);
         if (removeFeaturesAtNode) {
             newAttributes.remove(bestAttribute);
         }
@@ -74,7 +74,7 @@ public class BinaryDecisionTreeTrainer {
     }
 
     @VisibleForTesting
-    Optional<Object> bestEntropyGain(List<BinaryLabeledItem> items, List<Object> attributes, int maxFeaturesToUse) {
+    Optional<String> bestEntropyGain(List<BinaryLabeledItem> items, List<String> attributes, int maxFeaturesToUse) {
         attributes = new ArrayList<>(attributes);
         Collections.shuffle(attributes);
         return attributes.stream().limit(maxFeaturesToUse).max(comparing(o -> entropyCalculator.entropyGain(items, o)));

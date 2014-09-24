@@ -19,8 +19,8 @@ public class RandomForestTrainer {
         this.decisionTreeTrainer = decisionTreeTrainer;
     }
 
-    public TrainingResults train(String name, int numberOfTrees, List<LabeledItem> trainingData, List<Object> attributes, int defaultLabel) {
-        Map<Object, Set<Integer>> validValuesForAttributes = decisionTreeTrainer.validValuesForAttributes(trainingData, attributes);
+    public TrainingResults train(String name, int numberOfTrees, List<LabeledItem> trainingData, List<String> attributes, int defaultLabel) {
+        Map<String, Set<Integer>> validValuesForAttributes = decisionTreeTrainer.validValuesForAttributes(trainingData, attributes);
 
         Multimap<LabeledItem, DecisionTree> treesForItem = Multimaps.synchronizedMultimap(ArrayListMultimap.create());
 

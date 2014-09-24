@@ -9,7 +9,7 @@ import static java.util.stream.Collectors.toSet;
 public class BinaryEntropyCalculator {
     public static final double LOG_2 = Math.log(2);
 
-    double entropy(List<BinaryLabeledItem> items, Object attribute, Integer attributeValue) {
+    double entropy(List<BinaryLabeledItem> items, String attribute, Integer attributeValue) {
         List<BinaryLabeledItem> matchingItems = items.stream().filter(i -> attributeValue.equals(i.evaluate(attribute))).collect(toList());
 
         double numberPositive = matchingItems.stream().filter(BinaryLabeledItem::positive).count();
@@ -32,7 +32,7 @@ public class BinaryEntropyCalculator {
         return entropy(items.size(), numberPositive, numberNegative);
     }
 
-    Double entropyGain(List<BinaryLabeledItem> items, Object attribute) {
+    Double entropyGain(List<BinaryLabeledItem> items, String attribute) {
         Set<Integer> values = items.stream().map(li -> li.evaluate(attribute)).collect(toSet());
 
         double labelEntropy = labelEntropy(items);

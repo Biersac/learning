@@ -20,7 +20,7 @@ public class BinaryRandomForestTrainer {
         this.decisionTreeTrainer = decisionTreeTrainer;
     }
 
-    public TrainingResults train(String name, int numberOfTrees, List<BinaryLabeledItem> trainingData, List<Object> attributes) {
+    public TrainingResults train(String name, int numberOfTrees, List<BinaryLabeledItem> trainingData, List<String> attributes) {
         AtomicInteger totalTestCases = new AtomicInteger();
         AtomicInteger totalWrongCases = new AtomicInteger();
 

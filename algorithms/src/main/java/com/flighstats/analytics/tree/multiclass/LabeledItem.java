@@ -11,11 +11,11 @@ public class LabeledItem {
     Item item;
     Integer label;
 
-    public Integer evaluate(Object attribute) {
+    public Integer evaluate(String attribute) {
         return item.evaluate(attribute);
     }
 
-    public List<Object> attributes() {
+    public List<String> attributes() {
         return new ArrayList<>(item.getValues().keySet());
     }
 }

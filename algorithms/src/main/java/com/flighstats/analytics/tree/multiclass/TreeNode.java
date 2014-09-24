@@ -10,7 +10,7 @@ import java.util.Map;
 @Value
 @AllArgsConstructor
 public class TreeNode {
-    Object key;
+    String key;
     Integer label;
     Map<Integer, TreeNode> branches;
 
@@ -18,7 +18,7 @@ public class TreeNode {
         this(null, label, null);
     }
 
-    public TreeNode(Object key, Map<Integer, TreeNode> branches) {
+    public TreeNode(String key, Map<Integer, TreeNode> branches) {
         this(key, null, branches);
     }
 

@@ -20,7 +20,7 @@ public class BinaryLabeledItem {
         return label;
     }
 
-    public Integer evaluate(Object attribute) {
+    public Integer evaluate(String attribute) {
         return item.evaluate(attribute);
     }
 }

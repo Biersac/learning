@@ -31,7 +31,7 @@ public class TreeNodeTest {
         branches.put(1, new TreeNode(0));
         TreeNode testClass = new TreeNode("bitter", branches);
 
-        Map<Object, Integer> values = new HashMap<>();
+        Map<String, Integer> values = new HashMap<>();
         values.put("bitter", 1);
         int result = testClass.evaluate(new Item("one", values));
         assertEquals(0, result);
@@ -43,7 +43,7 @@ public class TreeNodeTest {
         branches.put(0, new TreeNode(1));
         branches.put(1, new TreeNode(0));
         TreeNode testClass = new TreeNode("bitter", branches);
-        Map<Object, Integer> values = new HashMap<>();
+        Map<String, Integer> values = new HashMap<>();
         values.put("bitter", 0);
         int result = testClass.evaluate(new Item("one", values));
         assertEquals(1, result);
@@ -56,7 +56,7 @@ public class TreeNodeTest {
         branches.put(2, new TreeNode(4));
         branches.put(1, new TreeNode(0));
         TreeNode testClass = new TreeNode("bitter", branches);
-        Map<Object, Integer> values = new HashMap<>();
+        Map<String, Integer> values = new HashMap<>();
         values.put("bitter", 2);
         int result = testClass.evaluate(new Item("one", values));
         assertEquals(4, result);

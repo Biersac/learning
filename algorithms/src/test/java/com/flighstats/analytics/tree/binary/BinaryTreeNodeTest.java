@@ -1,7 +1,6 @@
 package com.flighstats.analytics.tree.binary;
 
 import com.flighstats.analytics.tree.Item;
-import com.flighstats.analytics.tree.binary.BinaryTreeNode;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -33,7 +32,7 @@ public class BinaryTreeNodeTest {
         branches.put(1, new BinaryTreeNode(false));
         BinaryTreeNode testClass = new BinaryTreeNode("bitter", branches);
 
-        Map<Object, Integer> values = new HashMap<>();
+        Map<String, Integer> values = new HashMap<>();
         values.put("bitter", 1);
         boolean result = testClass.evaluate(new Item("one", values));
         assertFalse(result);
@@ -45,7 +44,7 @@ public class BinaryTreeNodeTest {
         branches.put(0, new BinaryTreeNode(true));
         branches.put(1, new BinaryTreeNode(false));
         BinaryTreeNode testClass = new BinaryTreeNode("bitter", branches);
-        Map<Object, Integer> values = new HashMap<>();
+        Map<String, Integer> values = new HashMap<>();
         values.put("bitter", 0);
         boolean result = testClass.evaluate(new Item("one", values));
         assertTrue(result);

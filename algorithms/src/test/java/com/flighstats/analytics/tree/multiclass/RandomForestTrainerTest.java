@@ -25,7 +25,7 @@ public class RandomForestTrainerTest {
         List<LabeledItem> trainingData = buildTennisTrainingSet();
 
         RandomForestTrainer testClass = new RandomForestTrainer(new DecisionTreeTrainer(new EntropyCalculator()));
-        List<Object> attributes = tennisAttributes();
+        List<String> attributes = tennisAttributes();
 
         TrainingResults result = testClass.train("tennis", 5, trainingData, attributes, -1);
         RandomForest tennis = result.getForest();
@@ -45,12 +45,12 @@ public class RandomForestTrainerTest {
         assertEquals(randomForest, deserialized);
     }
 
-    private List<Object> tennisAttributes() {
+    public static List<String> tennisAttributes() {
         return Arrays.asList("outlook", "temp", "humidity", "wind");
     }
 
 
-    private List<LabeledItem> buildTennisTrainingSet() {
+    public static List<LabeledItem> buildTennisTrainingSet() {
         return Arrays.asList(
                 new LabeledItem(new Item("1", tennisData(SUNNY, HOT, HIGH, WEAK)), 0),
                 new LabeledItem(new Item("2", tennisData(SUNNY, HOT, HIGH, STRONG)), 0),
@@ -72,8 +72,8 @@ public class RandomForestTrainerTest {
         );
     }
 
-    private Map<Object, Integer> tennisData(Outlook outlook, Temp temperature, Humidity humidity, Wind wind) {
-        Map<Object, Integer> data = new HashMap<>();
+    public static Map<String, Integer> tennisData(Outlook outlook, Temp temperature, Humidity humidity, Wind wind) {
+        Map<String, Integer> data = new HashMap<>();
         data.put("outlook", outlook.value);
         data.put("temp", temperature.value);
         data.put("humidity", humidity.value);

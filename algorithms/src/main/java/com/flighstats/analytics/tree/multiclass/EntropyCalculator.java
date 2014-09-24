@@ -8,7 +8,7 @@ import static java.util.stream.Collectors.toSet;
 public class EntropyCalculator {
     public static final double LOG_2 = Math.log(2);
 
-    double entropy(List<LabeledItem> items, Object attribute, Integer attributeValue) {
+    double entropy(List<LabeledItem> items, String attribute, Integer attributeValue) {
         List<LabeledItem> matchingItems = items.stream().filter(i -> attributeValue.equals(i.evaluate(attribute))).collect(toList());
 
         Double[] cs = getCountsByCategory(matchingItems);
@@ -31,9 +31,8 @@ public class EntropyCalculator {
 
     private double entropy(double totalItems, Double[] numbersInEachClass) {
         double totalEntropy = 0;
-        for (int i = 0; i < numbersInEachClass.length; i++) {
-            double inClassI = numbersInEachClass[i];
-            double fractionInClassI = inClassI / totalItems;
+        for (Double number : numbersInEachClass) {
+            double fractionInClassI = number / totalItems;
             totalEntropy -= fractionInClassI * log2(fractionInClassI);
         }
         return totalEntropy;
@@ -43,7 +42,7 @@ public class EntropyCalculator {
         return entropy(items.size(), getCountsByCategory(items));
     }
 
-    Double entropyGain(List<LabeledItem> items, Object attribute) {
+    Double entropyGain(List<LabeledItem> items, String attribute) {
         Set<Integer> values = items.stream().map(li -> li.evaluate(attribute)).collect(toSet());
 
         double labelEntropy = labelEntropy(items);

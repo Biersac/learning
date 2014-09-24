@@ -19,8 +19,8 @@ public class DecisionTreeTrainer {
      * Classic ID3 decision tree.
      * http://www.cs.princeton.edu/courses/archive/spr07/cos424/papers/mitchell-dectrees.pdf
      */
-    public DecisionTree train(String name, List<LabeledItem> labeledItems, List<Object> attributesToConsider, int defaultLabel) {
-        Map<Object, Set<Integer>> validValuesForAttributes = validValuesForAttributes(labeledItems, attributesToConsider);
+    public DecisionTree train(String name, List<LabeledItem> labeledItems, List<String> attributesToConsider, int defaultLabel) {
+        Map<String, Set<Integer>> validValuesForAttributes = validValuesForAttributes(labeledItems, attributesToConsider);
         return new DecisionTree(name, trainRecursively(labeledItems, attributesToConsider, attributesToConsider.size(), true, defaultLabel, validValuesForAttributes));
     }
 
@@ -28,16 +28,16 @@ public class DecisionTreeTrainer {
      * For use in training random forests.
      * Suggestion is to use sqrt(# of features) as the maxFeaturesToUse (although Breiman says 2 works fine).
      */
-    public DecisionTree train(String name, List<LabeledItem> labeledItems, List<Object> attributesToConsider, int maxFeaturesToUse, boolean removeFeaturesAtNode, int defaultLabel, Map<Object, Set<Integer>> validValuesForAttributes) {
+    public DecisionTree train(String name, List<LabeledItem> labeledItems, List<String> attributesToConsider, int maxFeaturesToUse, boolean removeFeaturesAtNode, int defaultLabel, Map<String, Set<Integer>> validValuesForAttributes) {
         return new DecisionTree(name, trainRecursively(labeledItems, attributesToConsider, maxFeaturesToUse, removeFeaturesAtNode, defaultLabel, validValuesForAttributes));
     }
 
-    Map<Object, Set<Integer>> validValuesForAttributes(List<LabeledItem> items, List<Object> attributes) {
-        Map<Object, Set<Integer>> results = new HashMap<>();
-        for (Object attribute : attributes) {
+    Map<String, Set<Integer>> validValuesForAttributes(List<LabeledItem> items, List<String> attributes) {
+        Map<String, Set<Integer>> results = new HashMap<>();
+        for (String attribute : attributes) {
             results.put(attribute, new HashSet<>());
         }
-        for (Object attribute : attributes) {
+        for (String attribute : attributes) {
             for (LabeledItem item : items) {
                 results.get(attribute).add(item.evaluate(attribute));
             }
@@ -45,7 +45,7 @@ public class DecisionTreeTrainer {
         return results;
     }
 
-    private TreeNode trainRecursively(List<LabeledItem> labeledItems, List<Object> attributesToConsider, int maxFeaturesToUse, boolean removeFeaturesAtNode, int defaultLabel, Map<Object, Set<Integer>> validValuesForAttributes) {
+    private TreeNode trainRecursively(List<LabeledItem> labeledItems, List<String> attributesToConsider, int maxFeaturesToUse, boolean removeFeaturesAtNode, int defaultLabel, Map<String, Set<Integer>> validValuesForAttributes) {
         if (labeledItems.isEmpty()) {
             return new TreeNode(defaultLabel);
         }
@@ -55,8 +55,8 @@ public class DecisionTreeTrainer {
         if (attributesToConsider.isEmpty()) {
             return new TreeNode(defaultLabel);
         }
-        Object bestAttribute = bestEntropyGain(labeledItems, attributesToConsider, maxFeaturesToUse).get();
-        List<Object> newAttributes = new ArrayList<>(attributesToConsider);
+        String bestAttribute = bestEntropyGain(labeledItems, attributesToConsider, maxFeaturesToUse).get();
+        List<String> newAttributes = new ArrayList<>(attributesToConsider);
         if (removeFeaturesAtNode) {
             newAttributes.remove(bestAttribute);
         }
@@ -75,7 +75,7 @@ public class DecisionTreeTrainer {
     }
 
     @VisibleForTesting
-    Optional<Object> bestEntropyGain(List<LabeledItem> items, List<Object> attributes, int maxFeaturesToUse) {
+    Optional<String> bestEntropyGain(List<LabeledItem> items, List<String> attributes, int maxFeaturesToUse) {
         attributes = new ArrayList<>(attributes);
         Collections.shuffle(attributes);
         return attributes.stream().limit(maxFeaturesToUse).max(comparing(o -> entropyCalculator.entropyGain(items, o)));
