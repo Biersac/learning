@@ -3,6 +3,9 @@ package com.flighstats.analytics.tree.multiclass;
 import com.flighstats.analytics.tree.Item;
 import lombok.Value;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Value
 public class LabeledItem {
     Item item;
@@ -10,5 +13,9 @@ public class LabeledItem {
 
     public Integer evaluate(Object attribute) {
         return item.evaluate(attribute);
+    }
+
+    public List<Object> attributes() {
+        return new ArrayList<>(item.getValues().keySet());
     }
 }

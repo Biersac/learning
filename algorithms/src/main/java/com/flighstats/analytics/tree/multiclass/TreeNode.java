@@ -29,7 +29,8 @@ public class TreeNode {
         Integer evaluation = item.evaluate(key);
         TreeNode branch = branches.get(evaluation);
         if (branch == null) {
-            throw new IllegalStateException("Hit a node with a missing branch! Bug exists here.");
+            //todo probably the default would be better here...
+            return null;
         }
         return branch.evaluate(item);
     }
