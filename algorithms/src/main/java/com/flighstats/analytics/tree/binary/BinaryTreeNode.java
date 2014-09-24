@@ -1,5 +1,6 @@
-package com.flighstats.analytics.tree;
+package com.flighstats.analytics.tree.binary;
 
+import com.flighstats.analytics.tree.Item;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
@@ -8,16 +9,16 @@ import java.util.Map;
 
 @Value
 @AllArgsConstructor
-public class TreeNode {
-    Object key;
+public class BinaryTreeNode {
+    String key;
     boolean label;
-    Map<Integer, TreeNode> branches;
+    Map<Integer, BinaryTreeNode> branches;
 
-    public TreeNode(boolean label) {
+    public BinaryTreeNode(boolean label) {
         this(null, label, null);
     }
 
-    public TreeNode(Object key, Map<Integer, TreeNode> branches) {
+    public BinaryTreeNode(String key, Map<Integer, BinaryTreeNode> branches) {
         this(key, false, branches);
     }
 
@@ -26,7 +27,7 @@ public class TreeNode {
             return label;
         }
         Integer evaluation = item.evaluate(key);
-        TreeNode branch = branches.get(evaluation);
+        BinaryTreeNode branch = branches.get(evaluation);
         if (branch == null) {
             /*
             TODO: what is the *proper* response, when we didn't seen this value in this branch during training?
@@ -42,6 +43,11 @@ public class TreeNode {
                 in haystacks, or are we trying to sort roughly equally-prevalent classes? Or are we trying to only
                 find the outliers (which might be considered "negative" in some sense, depending on how the training
                 regime and data were assembled.
+
+                Further research: I found a note in Quinlan's C4.5 description that addresses this. ID3 & C4.5
+                Use the "most prevalent" label from the training set. But, Quinlan does say the requirement is just
+                that it's "external" to the training system (i.e. there is no a-priori way to decide what this default
+                should be). I suggest that it probably needs to be an input to the training system.
             */
             return false;
         }
@@ -54,7 +60,7 @@ public class TreeNode {
             return;
         }
         System.out.println(spaces(depth) + " " + key);
-        for (Map.Entry<Integer, TreeNode> entry : branches.entrySet()) {
+        for (Map.Entry<Integer, BinaryTreeNode> entry : branches.entrySet()) {
             System.out.println(spaces(depth) + "  " + entry.getKey() + " : ");
             entry.getValue().printStructure(depth + 1);
         }

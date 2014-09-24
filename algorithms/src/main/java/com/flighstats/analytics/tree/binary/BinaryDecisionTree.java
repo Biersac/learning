@@ -1,11 +1,12 @@
-package com.flighstats.analytics.tree;
+package com.flighstats.analytics.tree.binary;
 
+import com.flighstats.analytics.tree.Item;
 import lombok.Value;
 
 @Value
-public class DecisionTree {
+public class BinaryDecisionTree {
     String name;
-    TreeNode rootNode;
+    BinaryTreeNode rootNode;
 
     boolean evaluate(Item item) {
         return rootNode.evaluate(item);

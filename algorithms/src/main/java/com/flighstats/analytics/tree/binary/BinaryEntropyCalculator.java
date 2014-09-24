@@ -1,4 +1,4 @@
-package com.flighstats.analytics.tree;
+package com.flighstats.analytics.tree.binary;
 
 import java.util.List;
 import java.util.Set;
@@ -6,14 +6,14 @@ import java.util.Set;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
-public class EntropyCalculator {
+public class BinaryEntropyCalculator {
     public static final double LOG_2 = Math.log(2);
 
-    double entropy(List<LabeledItem> items, Object attribute, Integer attributeValue) {
-        List<LabeledItem> matchingItems = items.stream().filter(i -> attributeValue.equals(i.evaluate(attribute))).collect(toList());
+    double entropy(List<BinaryLabeledItem> items, String attribute, Integer attributeValue) {
+        List<BinaryLabeledItem> matchingItems = items.stream().filter(i -> attributeValue.equals(i.evaluate(attribute))).collect(toList());
 
-        double numberPositive = matchingItems.stream().filter(LabeledItem::positive).count();
-        double numberNegative = matchingItems.stream().filter(LabeledItem::negative).count();
+        double numberPositive = matchingItems.stream().filter(BinaryLabeledItem::positive).count();
+        double numberNegative = matchingItems.stream().filter(BinaryLabeledItem::negative).count();
 
         double totalItems = matchingItems.size();
         return entropy(totalItems, numberPositive, numberNegative);
@@ -26,13 +26,13 @@ public class EntropyCalculator {
         return -fractionPositive * log2(fractionPositive) - fractionNegative * log2(fractionNegative);
     }
 
-    double labelEntropy(List<LabeledItem> items) {
-        double numberPositive = items.stream().filter(LabeledItem::positive).count();
-        double numberNegative = items.stream().filter(LabeledItem::negative).count();
+    double labelEntropy(List<BinaryLabeledItem> items) {
+        double numberPositive = items.stream().filter(BinaryLabeledItem::positive).count();
+        double numberNegative = items.stream().filter(BinaryLabeledItem::negative).count();
         return entropy(items.size(), numberPositive, numberNegative);
     }
 
-    Double entropyGain(List<LabeledItem> items, Object attribute) {
+    Double entropyGain(List<BinaryLabeledItem> items, String attribute) {
         Set<Integer> values = items.stream().map(li -> li.evaluate(attribute)).collect(toSet());
 
         double labelEntropy = labelEntropy(items);

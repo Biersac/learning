@@ -7,9 +7,9 @@ import java.util.Map;
 @Value
 public class Item {
     String id;
-    Map<Object, Integer> values;
+    Map<String, Integer> values;
 
-    public Integer evaluate(Object key) {
+    public Integer evaluate(String key) {
         return values.get(key);
     }
 }
