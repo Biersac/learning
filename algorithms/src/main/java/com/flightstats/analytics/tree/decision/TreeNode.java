@@ -1,6 +1,5 @@
 package com.flightstats.analytics.tree.decision;
 
-import com.flightstats.analytics.tree.Item;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 

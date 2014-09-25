@@ -1,4 +1,4 @@
-package com.flightstats.analytics.tree;
+package com.flightstats.analytics.tree.decision;
 
 import lombok.Value;
 

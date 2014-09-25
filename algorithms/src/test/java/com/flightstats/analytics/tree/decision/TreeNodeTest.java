@@ -1,6 +1,5 @@
 package com.flightstats.analytics.tree.decision;
 
-import com.flightstats.analytics.tree.Item;
 import org.junit.Test;
 
 import java.util.HashMap;
