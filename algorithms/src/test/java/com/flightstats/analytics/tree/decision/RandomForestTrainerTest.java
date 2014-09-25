@@ -1,4 +1,4 @@
-package com.flightstats.analytics.tree.multiclass;
+package com.flightstats.analytics.tree.decision;
 
 import com.flightstats.analytics.tree.Item;
 import com.google.gson.Gson;
@@ -10,12 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.flightstats.analytics.tree.multiclass.RandomForestTrainerTest.Humidity.HIGH;
-import static com.flightstats.analytics.tree.multiclass.RandomForestTrainerTest.Humidity.NORMAL;
-import static com.flightstats.analytics.tree.multiclass.RandomForestTrainerTest.Outlook.*;
-import static com.flightstats.analytics.tree.multiclass.RandomForestTrainerTest.Temp.*;
-import static com.flightstats.analytics.tree.multiclass.RandomForestTrainerTest.Wind.STRONG;
-import static com.flightstats.analytics.tree.multiclass.RandomForestTrainerTest.Wind.WEAK;
+import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Humidity.HIGH;
+import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Humidity.NORMAL;
+import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Outlook.*;
+import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Temp.*;
+import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Wind.STRONG;
+import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Wind.WEAK;
 import static org.junit.Assert.assertEquals;
 
 public class RandomForestTrainerTest {

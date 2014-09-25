@@ -1,7 +1,7 @@
 package com.flightstats.analytics.examples;
 
 import com.flightstats.analytics.tree.Item;
-import com.flightstats.analytics.tree.multiclass.*;
+import com.flightstats.analytics.tree.decision.*;
 
 import java.io.IOException;
 import java.io.InputStream;
