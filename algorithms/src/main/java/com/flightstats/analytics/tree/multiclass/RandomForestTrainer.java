@@ -21,6 +21,7 @@ public class RandomForestTrainer {
 
     public TrainingResults train(String name, int numberOfTrees, List<LabeledItem> trainingData, List<String> attributes, int defaultLabel) {
         Map<String, Set<Integer>> validValuesForAttributes = decisionTreeTrainer.validValuesForAttributes(trainingData, attributes);
+        int featuresToUse = (int) Math.sqrt(attributes.size());
 
         Multimap<LabeledItem, DecisionTree> treesForItem = Multimaps.synchronizedMultimap(ArrayListMultimap.create());
 
@@ -29,7 +30,7 @@ public class RandomForestTrainer {
                 .map(x -> {
                     List<LabeledItem> bootstrappedData = pickTrainingData(trainingData);
                     Sets.SetView<LabeledItem> outOfBagItems = Sets.difference(new HashSet<>(trainingData), new HashSet<>(bootstrappedData));
-                    DecisionTree tree = decisionTreeTrainer.train(name, bootstrappedData, attributes, (int) Math.sqrt(attributes.size()), false, defaultLabel, validValuesForAttributes);
+                    DecisionTree tree = decisionTreeTrainer.train(name, bootstrappedData, attributes, featuresToUse, false, defaultLabel, validValuesForAttributes);
                     for (LabeledItem item : outOfBagItems) {
                         treesForItem.put(item, tree);
                     }

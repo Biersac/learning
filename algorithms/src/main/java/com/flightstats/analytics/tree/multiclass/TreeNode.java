@@ -26,7 +26,7 @@ public class TreeNode {
         if (key == null) {
             return label;
         }
-        Integer evaluation = item.evaluate(key);
+        Integer evaluation = item.value(key);
         TreeNode branch = branches.get(evaluation);
         if (branch == null) {
             //todo probably the default would be better here...

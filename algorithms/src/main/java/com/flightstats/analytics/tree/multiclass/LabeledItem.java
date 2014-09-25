@@ -11,8 +11,8 @@ public class LabeledItem {
     Item item;
     Integer label;
 
-    public Integer evaluate(String attribute) {
-        return item.evaluate(attribute);
+    public Integer value(String attribute) {
+        return item.value(attribute);
     }
 
     public List<String> attributes() {

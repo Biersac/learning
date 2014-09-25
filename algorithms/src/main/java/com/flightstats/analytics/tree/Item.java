@@ -9,7 +9,7 @@ public class Item {
     String id;
     Map<String, Integer> values;
 
-    public Integer evaluate(String key) {
+    public Integer value(String key) {
         return values.get(key);
     }
 }

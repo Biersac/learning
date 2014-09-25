@@ -39,7 +39,7 @@ public class DecisionTreeTrainer {
         }
         for (String attribute : attributes) {
             for (LabeledItem item : items) {
-                results.get(attribute).add(item.evaluate(attribute));
+                results.get(attribute).add(item.value(attribute));
             }
         }
         return results;
@@ -64,7 +64,7 @@ public class DecisionTreeTrainer {
         Set<Integer> valuesForAttribute = validValuesForAttributes.get(bestAttribute);
         Map<Integer, TreeNode> children = new HashMap<>();
         for (Integer integer : valuesForAttribute) {
-            children.put(integer, trainRecursively(labeledItems.stream().filter(li -> integer.equals(li.evaluate(bestAttribute))).collect(toList()), newAttributes, maxFeaturesToUse, removeFeaturesAtNode, defaultLabel, validValuesForAttributes));
+            children.put(integer, trainRecursively(labeledItems.stream().filter(li -> integer.equals(li.value(bestAttribute))).collect(toList()), newAttributes, maxFeaturesToUse, removeFeaturesAtNode, defaultLabel, validValuesForAttributes));
         }
 
         return new TreeNode(bestAttribute, children);

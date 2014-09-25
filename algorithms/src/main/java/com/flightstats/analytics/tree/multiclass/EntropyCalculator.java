@@ -9,7 +9,7 @@ public class EntropyCalculator {
     public static final double LOG_2 = Math.log(2);
 
     double entropy(List<LabeledItem> items, String attribute, Integer attributeValue) {
-        List<LabeledItem> matchingItems = items.stream().filter(i -> attributeValue.equals(i.evaluate(attribute))).collect(toList());
+        List<LabeledItem> matchingItems = items.stream().filter(i -> attributeValue.equals(i.value(attribute))).collect(toList());
 
         Double[] cs = getCountsByCategory(matchingItems);
 
@@ -43,12 +43,12 @@ public class EntropyCalculator {
     }
 
     Double entropyGain(List<LabeledItem> items, String attribute) {
-        Set<Integer> values = items.stream().map(li -> li.evaluate(attribute)).collect(toSet());
+        Set<Integer> values = items.stream().map(li -> li.value(attribute)).collect(toSet());
 
         double labelEntropy = labelEntropy(items);
         int totalItems = items.size();
         for (Integer value : values) {
-            double numberMatching = items.stream().filter(i -> value.equals(i.evaluate(attribute))).count();
+            double numberMatching = items.stream().filter(i -> value.equals(i.value(attribute))).count();
             double fractionMatching = numberMatching / totalItems;
             labelEntropy = labelEntropy - entropy(items, attribute, value) * fractionMatching;
         }
