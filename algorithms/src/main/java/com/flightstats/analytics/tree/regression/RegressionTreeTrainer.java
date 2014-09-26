@@ -11,19 +11,21 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 public class RegressionTreeTrainer {
-    public RegressionTree train(String name, List<LabeledMixedItem> trainingData, Collection<String> attributes) {
-        return new RegressionTree(name, buildNode(trainingData, attributes));
+    public RegressionTree train(String name, List<LabeledMixedItem> trainingData, Collection<String> attributes, int numberOfFeaturesToChoose) {
+        return new RegressionTree(name, buildNode(trainingData, attributes, numberOfFeaturesToChoose));
     }
 
-    private RegressionTreeNode buildNode(List<LabeledMixedItem> trainingData, Collection<String> attributes) {
+    private RegressionTreeNode buildNode(List<LabeledMixedItem> trainingData, Collection<String> attributes, int numberOfFeaturesToChoose) {
 //        System.out.println("initial S: " + (variance(trainingData) * trainingData.size()));
         if (allTrainingDataIsTheSame(trainingData, attributes)) {
             double averageResponse = averageResponse(trainingData);
 //            System.out.println("leaf node value = " + averageResponse);
             return new LeafNode(averageResponse);
         }
-        Split split = bestSplit(trainingData, attributes);
-
+        Split split = bestSplit(trainingData, attributes, numberOfFeaturesToChoose);
+        if (split == null) {
+            return new LeafNode(averageResponse(trainingData));
+        }
 //        System.out.println("split = " + split);
 //        System.out.println("l = " + split.getLeft().size());
 //        System.out.println("r = " + split.getRight().size());
@@ -31,10 +33,10 @@ public class RegressionTreeTrainer {
         //todo: check to see if the change in S is too small, or if there aren't enough things to do a split. maybe. [probably not needed for random forests, though...]
         if (split instanceof ContinuousSplit) {
             ContinuousSplit continuousSplit = (ContinuousSplit) split;
-            return new ContinuousTreeNode(continuousSplit.attribute, continuousSplit.splitValue, buildNode(split.getLeft(), attributes), buildNode(split.getRight(), attributes));
+            return new ContinuousTreeNode(continuousSplit.attribute, continuousSplit.splitValue, buildNode(split.getLeft(), attributes, numberOfFeaturesToChoose), buildNode(split.getRight(), attributes, numberOfFeaturesToChoose));
         } else {
             DiscreteSplit discreteSplit = (DiscreteSplit) split;
-            return new DiscreteTreeNode(discreteSplit.attribute, discreteSplit.getLeftChoice(), buildNode(split.getLeft(), attributes), buildNode(split.getRight(), attributes));
+            return new DiscreteTreeNode(discreteSplit.attribute, discreteSplit.getLeftChoice(), buildNode(split.getLeft(), attributes, numberOfFeaturesToChoose), buildNode(split.getRight(), attributes, numberOfFeaturesToChoose));
         }
     }
 
@@ -57,14 +59,19 @@ public class RegressionTreeTrainer {
         return Math.pow(value, 2);
     }
 
-    private Split bestSplit(List<LabeledMixedItem> items, Collection<String> attributes) {
+    private Split bestSplit(List<LabeledMixedItem> items, Collection<String> attributes, int numberOfFeaturesToChoose) {
+        if (numberOfFeaturesToChoose < attributes.size()) {
+            List<String> newAttributes = new ArrayList<>(attributes);
+            Collections.shuffle(newAttributes);
+            attributes = newAttributes.stream().limit(numberOfFeaturesToChoose).collect(toList());
+        }
         return attributes.stream().flatMap(attribute -> {
             List<ContinuousSplit> continuousSplits = possibleContinuousSplits(items, attribute);
             List<DiscreteSplit> discreteSplits = possibleDiscreteSplits(items, attribute);
             List<Split> splits = newArrayList(concat(continuousSplits, discreteSplits));
 //            splits.forEach(split -> System.out.println("splitS: " + splitError(split)));
             return splits.stream();
-        }).min(Comparator.comparing(this::splitError)).get();
+        }).min(Comparator.comparing(this::splitError)).orElse(null);
     }
 
     private List<ContinuousSplit> possibleContinuousSplits(List<LabeledMixedItem> items, String attribute) {

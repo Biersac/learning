@@ -59,7 +59,7 @@ public class Cars93Example {
         }).collect(toList());
 
         RegressionTreeTrainer trainer = new RegressionTreeTrainer();
-        RegressionTree tree = trainer.train("cars93", data, Arrays.asList(MANUAL_AVAIL, HORSEPOWER, WHEELBASE, DRIVETRAIN, TYPE));
+        RegressionTree tree = trainer.train("cars93", data, Arrays.asList(MANUAL_AVAIL, HORSEPOWER, WHEELBASE, DRIVETRAIN, TYPE), 5);
 
         data.forEach(i -> {
             double result = tree.evaluate(i.getItem());
