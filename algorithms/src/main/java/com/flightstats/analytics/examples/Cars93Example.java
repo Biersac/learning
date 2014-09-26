@@ -29,21 +29,29 @@ public class Cars93Example {
             Map<String, Double> continuousValues = new HashMap<>();
             continuousValues.put("horsepower", horsepower);
             continuousValues.put("wheelbase", wheelbase);
-            return new LabeledMixedItem(new MixedItem(fields[0], new HashMap<>(), continuousValues), price);
+
+            Map<String, Integer> discreteValues = new HashMap<>();
+            discreteValues.put("manual", "\"Yes\"".equals(fields[16]) ? 1 : 0);
+            //0: Front, 1: Rear, 2: 4WD
+            discreteValues.put("drivetrain", "\"Front\"".equals(fields[10]) ? 0 : "\"Rear\"".equals(fields[10]) ? 1 : 2);
+            return new LabeledMixedItem(new MixedItem(fields[0], discreteValues, continuousValues), price);
         }).collect(toList());
 
         RegressionTreeTrainer trainer = new RegressionTreeTrainer();
-        RegressionTree tree = trainer.train("cars93", data, Arrays.asList("horsepower", "wheelbase"));
+        RegressionTree tree = trainer.train("cars93", data, Arrays.asList("manual", "horsepower", "wheelbase", "drivetrain"));
 
         data.forEach(i -> {
             double result = tree.evaluate(i.getItem());
-            System.out.printf("%f\t%f\t%f\n", i.getLabel(), result, i.getLabel() - result);
+            System.out.printf("label: %f\tresult: %f\tdiff: %f\n", i.getLabel(), result, i.getLabel() - result);
         });
 
         Map<String, Double> continuousValues = new HashMap<>();
-        continuousValues.put("horsepower", 100d);
+        continuousValues.put("horsepower", 80d);
         continuousValues.put("wheelbase", 100d);
-        MixedItem test = new MixedItem("test", new HashMap<>(), continuousValues);
+        Map<String, Integer> discreteValues = new HashMap<>();
+        discreteValues.put("manual", 1);
+        discreteValues.put("drivetrain", 2);
+        MixedItem test = new MixedItem("test", discreteValues, continuousValues);
         double result = tree.evaluate(test);
         System.out.println("result = " + result);
     }

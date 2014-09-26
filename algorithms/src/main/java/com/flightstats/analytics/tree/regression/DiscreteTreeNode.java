@@ -19,7 +19,14 @@ public class DiscreteTreeNode implements RegressionTreeNode {
 
     private RegressionTreeNode choose(MixedItem item) {
         Integer value = item.getDiscreteValue(attribute);
-        return discreteSplitValue.equals(value) ? left : right;
+
+        boolean equals = discreteSplitValue.equals(value);
+//        if (equals) {
+//            System.out.println("" + attribute + " = " + discreteSplitValue + ". choosing left.");
+//        } else {
+//            System.out.println("" + attribute + " != " + discreteSplitValue + ". choosing right.");
+//        }
+        return equals ? left : right;
     }
 
 }

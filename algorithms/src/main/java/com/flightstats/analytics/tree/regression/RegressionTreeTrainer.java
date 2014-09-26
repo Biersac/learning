@@ -16,18 +16,18 @@ public class RegressionTreeTrainer {
     }
 
     private RegressionTreeNode buildNode(List<LabeledMixedItem> trainingData, Collection<String> attributes) {
-        System.out.println("initial S: " + (variance(trainingData) * trainingData.size()));
-        if (allTrainingDataIsTheSame(trainingData, attributes) || trainingData.size() < 1) {
+//        System.out.println("initial S: " + (variance(trainingData) * trainingData.size()));
+        if (allTrainingDataIsTheSame(trainingData, attributes)) {
             double averageResponse = averageResponse(trainingData);
-            System.out.println("leaf node value = " + averageResponse);
+//            System.out.println("leaf node value = " + averageResponse);
             return new LeafNode(averageResponse);
         }
         Split split = bestSplit(trainingData, attributes);
 
-        System.out.println("split = " + split);
-        System.out.println("l = " + split.getLeft().size());
-        System.out.println("r = " + split.getRight().size());
-        System.out.println("splitS(split) = " + splitError(split));
+//        System.out.println("split = " + split);
+//        System.out.println("l = " + split.getLeft().size());
+//        System.out.println("r = " + split.getRight().size());
+//        System.out.println("splitS(split) = " + splitError(split));
         //todo: check to see if the change in S is too small, or if there aren't enough things to do a split. maybe. [probably not needed for random forests, though...]
         if (split instanceof ContinuousSplit) {
             ContinuousSplit continuousSplit = (ContinuousSplit) split;
@@ -79,10 +79,12 @@ public class RegressionTreeTrainer {
 
     private List<Double> splitPoints(List<LabeledMixedItem> items, String attribute) {
         double[] values = items.stream()
-                .sorted(Comparator.comparing(i -> i.getContinuousValue(attribute)))
+                .map(i -> i.getContinuousValue(attribute))
                 .filter(Objects::nonNull)
-                .mapToDouble(i -> i.getContinuousValue(attribute))
-                .distinct().toArray();
+                .sorted(Comparator.naturalOrder())
+                .distinct()
+                .mapToDouble(d -> d)
+                .toArray();
         List<Double> results = new ArrayList<>();
         for (int i = 1; i < values.length; i++) {
             double value1 = values[i - 1];

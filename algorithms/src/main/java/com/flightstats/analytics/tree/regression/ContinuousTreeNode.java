@@ -19,7 +19,14 @@ public class ContinuousTreeNode implements RegressionTreeNode {
 
     private RegressionTreeNode choose(MixedItem item) {
         Double value = item.getContinuousValue(attribute);
-        return value < continuousSplitValue ? left : right;
+        boolean less = value < continuousSplitValue;
+//        if (less) {
+//            System.out.println("" + attribute + " < " + continuousSplitValue + ". choosing left.");
+//        } else {
+//            System.out.println("" + attribute + " >= " + continuousSplitValue + ". choosing right.");
+//        }
+
+        return less ? left : right;
     }
 
 }
