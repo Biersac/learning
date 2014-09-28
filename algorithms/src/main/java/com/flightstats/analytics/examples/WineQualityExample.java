@@ -46,7 +46,7 @@ public class WineQualityExample {
         System.out.println("average = " + average);
 
         RegressionRandomForestTrainer trainer = new RegressionRandomForestTrainer(new RegressionTreeTrainer());
-        TrainingResults trainingResults = trainer.train("white wine", 50, trainingSet, attributes);
+        TrainingResults trainingResults = trainer.train("white wine", 100, trainingSet, attributes);
         double outOfBagError = trainingResults.calculateOutOfBagError();
         System.out.println("outOfBagError = " + outOfBagError);
 

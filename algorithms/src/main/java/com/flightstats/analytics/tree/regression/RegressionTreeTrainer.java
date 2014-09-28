@@ -56,7 +56,7 @@ public class RegressionTreeTrainer {
     }
 
     private double square(double value) {
-        return Math.pow(value, 2);
+        return value * value;
     }
 
     private Split bestSplit(List<LabeledMixedItem> items, Collection<String> attributes, int numberOfFeaturesToChoose) {

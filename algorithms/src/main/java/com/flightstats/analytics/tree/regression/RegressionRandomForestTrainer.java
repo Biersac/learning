@@ -27,7 +27,7 @@ public class RegressionRandomForestTrainer {
         Multimap<LabeledMixedItem, RegressionTree> treesForItem = Multimaps.synchronizedMultimap(ArrayListMultimap.create());
 
         List<RegressionTree> trees = times(numberOfTrees)
-                .parallel()
+//                .parallel()
                 .map(x -> {
                     List<LabeledMixedItem> bootstrappedData = pickTrainingData(trainingData);
                     Sets.SetView<LabeledMixedItem> outOfBagItems = Sets.difference(new HashSet<>(trainingData), new HashSet<>(bootstrappedData));
