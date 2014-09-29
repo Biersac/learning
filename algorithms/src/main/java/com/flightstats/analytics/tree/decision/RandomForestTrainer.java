@@ -48,9 +48,8 @@ public class RandomForestTrainer {
         return dataToUse;
     }
 
-    @SuppressWarnings("RedundantCast")
     public static Stream<Void> times(int number) {
-        return Stream.generate(() -> (Void) null).limit(number);
+        return Arrays.stream(new Void[number]);
     }
 
 }

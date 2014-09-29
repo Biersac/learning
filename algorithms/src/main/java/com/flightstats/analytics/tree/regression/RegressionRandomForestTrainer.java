@@ -2,17 +2,18 @@ package com.flightstats.analytics.tree.regression;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
+import lombok.Value;
+import lombok.extern.java.Log;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 
+import static com.google.common.collect.Lists.transform;
 import static java.util.stream.Collectors.toList;
 
+@Log
 public class RegressionRandomForestTrainer {
     private final RegressionTreeTrainer regressionTreeTrainer;
     private final SecureRandom secureRandom = new SecureRandom();
@@ -24,22 +25,21 @@ public class RegressionRandomForestTrainer {
     public TrainingResults train(String name, int numberOfTrees, List<LabeledMixedItem> trainingData, List<String> attributes) {
         int featuresToUse = (int) Math.sqrt(attributes.size());
 
-        Multimap<LabeledMixedItem, RegressionTree> treesForItem = Multimaps.synchronizedMultimap(ArrayListMultimap.create());
-
-        List<RegressionTree> trees = times(numberOfTrees)
-//                .parallel()
+        List<TrainingPair> pairs = times(numberOfTrees)
+                .parallel()
                 .map(x -> {
                     List<LabeledMixedItem> bootstrappedData = pickTrainingData(trainingData);
-                    Sets.SetView<LabeledMixedItem> outOfBagItems = Sets.difference(new HashSet<>(trainingData), new HashSet<>(bootstrappedData));
+                    Set<LabeledMixedItem> outOfBagItems = Sets.difference(new HashSet<>(trainingData), new HashSet<>(bootstrappedData));
                     RegressionTree tree = regressionTreeTrainer.train(name, bootstrappedData, attributes, featuresToUse);
-                    for (LabeledMixedItem item : outOfBagItems) {
-                        treesForItem.put(item, tree);
-                    }
                     System.out.print(".");
-                    return tree;
+                    return new TrainingPair(tree, outOfBagItems);
                 }).collect(toList());
 
-        return new TrainingResults(new RegressionRandomForest(trees), treesForItem);
+        Multimap<LabeledMixedItem, RegressionTree> treesForItem = ArrayListMultimap.create();
+        for (TrainingPair pair : pairs) {
+            pair.getOutOfBagItems().forEach(item -> treesForItem.put(item, pair.getTree()));
+        }
+        return new TrainingResults(new RegressionRandomForest(transform(pairs, TrainingPair::getTree)), treesForItem);
     }
 
     private List<LabeledMixedItem> pickTrainingData(List<LabeledMixedItem> trainingData) {
@@ -50,9 +50,13 @@ public class RegressionRandomForestTrainer {
         return dataToUse;
     }
 
-    @SuppressWarnings("RedundantCast")
     public static Stream<Void> times(int number) {
-        return Stream.generate(() -> (Void) null).limit(number);
+        return Arrays.stream(new Void[number]);
     }
 
+    @Value
+    private static class TrainingPair {
+        RegressionTree tree;
+        Set<LabeledMixedItem> outOfBagItems;
+    }
 }

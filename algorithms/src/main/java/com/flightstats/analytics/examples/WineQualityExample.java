@@ -43,12 +43,12 @@ public class WineQualityExample {
         List<LabeledMixedItem> trainingSet = data.stream().skip(numberOfTestItems).collect(toList());
 
         double average = data.stream().mapToDouble(LabeledMixedItem::getLabel).average().getAsDouble();
-        System.out.println("average = " + average);
+        System.out.println("average value = " + average);
 
         RegressionRandomForestTrainer trainer = new RegressionRandomForestTrainer(new RegressionTreeTrainer());
         TrainingResults trainingResults = trainer.train("white wine", 100, trainingSet, attributes);
         double outOfBagError = trainingResults.calculateOutOfBagError();
-        System.out.println("outOfBagError = " + outOfBagError);
+        System.out.println("\noutOfBagError = " + outOfBagError);
 
         RegressionRandomForest forest = trainingResults.getForest();
         AtomicInteger closeCount = new AtomicInteger(0);
