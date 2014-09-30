@@ -1,7 +1,8 @@
 package com.flightstats.analytics.examples;
 
+import com.flightstats.analytics.tree.MixedItem;
+import com.flightstats.analytics.tree.Splitter;
 import com.flightstats.analytics.tree.regression.LabeledMixedItem;
-import com.flightstats.analytics.tree.regression.MixedItem;
 import com.flightstats.analytics.tree.regression.RegressionTree;
 import com.flightstats.analytics.tree.regression.RegressionTreeTrainer;
 
@@ -58,7 +59,7 @@ public class Cars93Example {
             return new LabeledMixedItem(new MixedItem(fields[0], discreteValues, continuousValues), price);
         }).collect(toList());
 
-        RegressionTreeTrainer trainer = new RegressionTreeTrainer();
+        RegressionTreeTrainer trainer = new RegressionTreeTrainer(new Splitter());
         RegressionTree tree = trainer.train("cars93", data, Arrays.asList(MANUAL_AVAIL, HORSEPOWER, WHEELBASE, DRIVETRAIN, TYPE), 5);
 
         data.forEach(i -> {

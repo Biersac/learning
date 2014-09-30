@@ -1,4 +1,4 @@
-package com.flightstats.analytics.tree.regression;
+package com.flightstats.analytics.tree;
 
 import lombok.Value;
 

@@ -1,4 +1,4 @@
-package com.flightstats.analytics.tree.decision;
+package com.flightstats.analytics.tree.decisionv1;
 
 import com.google.common.collect.Multimap;
 import lombok.Value;

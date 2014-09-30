@@ -1,5 +1,6 @@
 package com.flightstats.analytics.tree.regression;
 
+import com.flightstats.analytics.tree.MixedItem;
 import lombok.Value;
 
 @Value
@@ -20,12 +21,6 @@ public class ContinuousTreeNode implements RegressionTreeNode {
     private RegressionTreeNode choose(MixedItem item) {
         Double value = item.getContinuousValue(attribute);
         boolean less = value < continuousSplitValue;
-//        if (less) {
-//            System.out.println("" + attribute + " < " + continuousSplitValue + ". choosing left.");
-//        } else {
-//            System.out.println("" + attribute + " >= " + continuousSplitValue + ". choosing right.");
-//        }
-
         return less ? left : right;
     }
 

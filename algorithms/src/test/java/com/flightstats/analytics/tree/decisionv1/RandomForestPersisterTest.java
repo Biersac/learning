@@ -1,4 +1,4 @@
-package com.flightstats.analytics.tree.decision;
+package com.flightstats.analytics.tree.decisionv1;
 
 import org.junit.Test;
 
@@ -6,13 +6,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
-import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Humidity.HIGH;
-import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Humidity.NORMAL;
-import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Outlook.RAIN;
-import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Temp.HOT;
-import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Temp.MILD;
-import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Wind.WEAK;
-import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.*;
+import static com.flightstats.analytics.tree.decisionv1.RandomForestTrainerTest.Humidity.HIGH;
+import static com.flightstats.analytics.tree.decisionv1.RandomForestTrainerTest.Humidity.NORMAL;
+import static com.flightstats.analytics.tree.decisionv1.RandomForestTrainerTest.Outlook.RAIN;
+import static com.flightstats.analytics.tree.decisionv1.RandomForestTrainerTest.Temp.HOT;
+import static com.flightstats.analytics.tree.decisionv1.RandomForestTrainerTest.Temp.MILD;
+import static com.flightstats.analytics.tree.decisionv1.RandomForestTrainerTest.Wind.WEAK;
+import static com.flightstats.analytics.tree.decisionv1.RandomForestTrainerTest.*;
 import static org.junit.Assert.assertEquals;
 
 public class RandomForestPersisterTest {

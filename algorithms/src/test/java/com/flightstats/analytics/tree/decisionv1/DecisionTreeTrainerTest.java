@@ -1,16 +1,16 @@
-package com.flightstats.analytics.tree.decision;
+package com.flightstats.analytics.tree.decisionv1;
 
 import lombok.AllArgsConstructor;
 import org.junit.Test;
 
 import java.util.*;
 
-import static com.flightstats.analytics.tree.decision.DecisionTreeTrainerTest.Humidity.HIGH;
-import static com.flightstats.analytics.tree.decision.DecisionTreeTrainerTest.Humidity.NORMAL;
-import static com.flightstats.analytics.tree.decision.DecisionTreeTrainerTest.Outlook.*;
-import static com.flightstats.analytics.tree.decision.DecisionTreeTrainerTest.Temp.*;
-import static com.flightstats.analytics.tree.decision.DecisionTreeTrainerTest.Wind.STRONG;
-import static com.flightstats.analytics.tree.decision.DecisionTreeTrainerTest.Wind.WEAK;
+import static com.flightstats.analytics.tree.decisionv1.DecisionTreeTrainerTest.Humidity.HIGH;
+import static com.flightstats.analytics.tree.decisionv1.DecisionTreeTrainerTest.Humidity.NORMAL;
+import static com.flightstats.analytics.tree.decisionv1.DecisionTreeTrainerTest.Outlook.*;
+import static com.flightstats.analytics.tree.decisionv1.DecisionTreeTrainerTest.Temp.*;
+import static com.flightstats.analytics.tree.decisionv1.DecisionTreeTrainerTest.Wind.STRONG;
+import static com.flightstats.analytics.tree.decisionv1.DecisionTreeTrainerTest.Wind.WEAK;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

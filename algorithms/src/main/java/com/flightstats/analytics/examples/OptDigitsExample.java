@@ -1,6 +1,6 @@
 package com.flightstats.analytics.examples;
 
-import com.flightstats.analytics.tree.decision.*;
+import com.flightstats.analytics.tree.decisionv1.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,9 +21,9 @@ import static java.util.stream.Collectors.toList;
 /**
  * This is an example of how one could train and test a RandomForest. It is doing recognition of handwritten digits,
  * using data from http://archive.ics.uci.edu/ml/datasets (The "Optical Recognition of Handwritten Digits Data Set").
- * <p/>
+ * <p>
  * The OOB error estimate & the test error should be about 4-5%, using this code.
- * <p/>
+ * <p>
  * This should be run from the root of the project (not from within the algorithms directory),
  * unless you want to edit the code and change the location of the training/test data.
  */

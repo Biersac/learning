@@ -1,4 +1,4 @@
-package com.flightstats.analytics.tree.decision;
+package com.flightstats.analytics.tree.decisionv1;
 
 import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
@@ -9,12 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Humidity.HIGH;
-import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Humidity.NORMAL;
-import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Outlook.*;
-import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Temp.*;
-import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Wind.STRONG;
-import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Wind.WEAK;
+import static com.flightstats.analytics.tree.decisionv1.RandomForestTrainerTest.Humidity.HIGH;
+import static com.flightstats.analytics.tree.decisionv1.RandomForestTrainerTest.Humidity.NORMAL;
+import static com.flightstats.analytics.tree.decisionv1.RandomForestTrainerTest.Outlook.*;
+import static com.flightstats.analytics.tree.decisionv1.RandomForestTrainerTest.Temp.*;
+import static com.flightstats.analytics.tree.decisionv1.RandomForestTrainerTest.Wind.STRONG;
+import static com.flightstats.analytics.tree.decisionv1.RandomForestTrainerTest.Wind.WEAK;
 import static org.junit.Assert.assertEquals;
 
 public class RandomForestTrainerTest {

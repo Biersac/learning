@@ -1,4 +1,4 @@
-package com.flightstats.analytics.tree.decision;
+package com.flightstats.analytics.tree.decisionv1;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
@@ -15,7 +15,7 @@ import java.util.Set;
 
 /**
  * Will persist random forests, and reload them. Uses Gson as the serialization mechanism.
- * <p/>
+ * <p>
  * We should consider not using json, as it's really inefficient, from a space perspective.
  */
 public class RandomForestPersister {

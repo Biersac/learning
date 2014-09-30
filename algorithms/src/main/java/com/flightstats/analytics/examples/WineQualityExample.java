@@ -1,5 +1,7 @@
 package com.flightstats.analytics.examples;
 
+import com.flightstats.analytics.tree.MixedItem;
+import com.flightstats.analytics.tree.Splitter;
 import com.flightstats.analytics.tree.regression.*;
 
 import java.io.IOException;
@@ -45,7 +47,7 @@ public class WineQualityExample {
         double average = data.stream().mapToDouble(LabeledMixedItem::getLabel).average().getAsDouble();
         System.out.println("average value = " + average);
 
-        RegressionRandomForestTrainer trainer = new RegressionRandomForestTrainer(new RegressionTreeTrainer());
+        RegressionRandomForestTrainer trainer = new RegressionRandomForestTrainer(new RegressionTreeTrainer(new Splitter()));
         TrainingResults trainingResults = trainer.train("white wine", 100, trainingSet, attributes);
         double outOfBagError = trainingResults.calculateOutOfBagError();
         System.out.println("\noutOfBagError = " + outOfBagError);

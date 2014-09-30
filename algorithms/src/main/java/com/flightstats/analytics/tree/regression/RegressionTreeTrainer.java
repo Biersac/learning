@@ -1,6 +1,9 @@
 package com.flightstats.analytics.tree.regression;
 
-import lombok.Value;
+import com.flightstats.analytics.tree.ContinuousSplit;
+import com.flightstats.analytics.tree.DiscreteSplit;
+import com.flightstats.analytics.tree.Split;
+import com.flightstats.analytics.tree.Splitter;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -8,9 +11,14 @@ import java.util.stream.Stream;
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 public class RegressionTreeTrainer {
+    private final Splitter splitter;
+
+    public RegressionTreeTrainer(Splitter splitter) {
+        this.splitter = splitter;
+    }
+
     public RegressionTree train(String name, List<LabeledMixedItem> trainingData, Collection<String> attributes, int numberOfFeaturesToChoose) {
         return new RegressionTree(name, buildNode(trainingData, attributes, numberOfFeaturesToChoose));
     }
@@ -33,10 +41,10 @@ public class RegressionTreeTrainer {
         //todo: check to see if the change in S is too small, or if there aren't enough things to do a split. maybe. [probably not needed for random forests, though...]
         if (split instanceof ContinuousSplit) {
             ContinuousSplit continuousSplit = (ContinuousSplit) split;
-            return new ContinuousTreeNode(continuousSplit.attribute, continuousSplit.splitValue, buildNode(split.getLeft(), attributes, numberOfFeaturesToChoose), buildNode(split.getRight(), attributes, numberOfFeaturesToChoose));
+            return new ContinuousTreeNode(continuousSplit.getAttribute(), continuousSplit.getSplitValue(), buildNode(split.getLeft(), attributes, numberOfFeaturesToChoose), buildNode(split.getRight(), attributes, numberOfFeaturesToChoose));
         } else {
             DiscreteSplit discreteSplit = (DiscreteSplit) split;
-            return new DiscreteTreeNode(discreteSplit.attribute, discreteSplit.getLeftChoice(), buildNode(split.getLeft(), attributes, numberOfFeaturesToChoose), buildNode(split.getRight(), attributes, numberOfFeaturesToChoose));
+            return new DiscreteTreeNode(discreteSplit.getAttribute(), discreteSplit.getLeftChoice(), buildNode(split.getLeft(), attributes, numberOfFeaturesToChoose), buildNode(split.getRight(), attributes, numberOfFeaturesToChoose));
         }
     }
 
@@ -66,50 +74,12 @@ public class RegressionTreeTrainer {
             attributes = newAttributes.stream().limit(numberOfFeaturesToChoose).collect(toList());
         }
         return attributes.stream().flatMap(attribute -> {
-            List<ContinuousSplit> continuousSplits = possibleContinuousSplits(items, attribute);
-            List<DiscreteSplit> discreteSplits = possibleDiscreteSplits(items, attribute);
+            List<ContinuousSplit> continuousSplits = splitter.possibleContinuousSplits(items, attribute);
+            List<DiscreteSplit> discreteSplits = splitter.possibleDiscreteSplits(items, attribute);
             List<Split> splits = newArrayList(concat(continuousSplits, discreteSplits));
 //            splits.forEach(split -> System.out.println("splitS: " + splitError(split)));
             return splits.stream();
         }).min(Comparator.comparing(this::splitError)).orElse(null);
-    }
-
-    private List<ContinuousSplit> possibleContinuousSplits(List<LabeledMixedItem> items, String attribute) {
-        return splitPoints(items, attribute).stream().map(v -> split(items, attribute, v)).collect(toList());
-    }
-
-    private ContinuousSplit split(List<LabeledMixedItem> items, String attribute, Double value) {
-        List<LabeledMixedItem> left = items.stream().filter(i -> i.getContinuousValue(attribute) < value).collect(toList());
-        List<LabeledMixedItem> right = items.stream().filter(i -> i.getContinuousValue(attribute) >= value).collect(toList());
-        return new ContinuousSplit(attribute, value, left, right);
-    }
-
-    private List<Double> splitPoints(List<LabeledMixedItem> items, String attribute) {
-        double[] values = items.stream()
-                .map(i -> i.getContinuousValue(attribute))
-                .filter(Objects::nonNull)
-                .sorted(Comparator.naturalOrder())
-                .distinct()
-                .mapToDouble(d -> d)
-                .toArray();
-        List<Double> results = new ArrayList<>();
-        for (int i = 1; i < values.length; i++) {
-            double value1 = values[i - 1];
-            double value2 = values[i];
-            results.add((value2 + value1) / 2);
-        }
-        return results;
-    }
-
-    private List<DiscreteSplit> possibleDiscreteSplits(List<LabeledMixedItem> items, String attribute) {
-        Set<Integer> attributeValues = items.stream().map(i -> i.getDiscreteValue(attribute)).filter(Objects::nonNull).collect(toSet());
-        return attributeValues.stream().map(av -> split(items, attribute, av)).collect(toList());
-    }
-
-    private DiscreteSplit split(List<LabeledMixedItem> items, String attribute, Integer attributeValue) {
-        List<LabeledMixedItem> left = items.stream().filter(i -> attributeValue.equals(i.getDiscreteValue(attribute))).collect(toList());
-        List<LabeledMixedItem> right = items.stream().filter(i -> !attributeValue.equals(i.getDiscreteValue(attribute))).collect(toList());
-        return new DiscreteSplit(attribute, attributeValue, left, right);
     }
 
     private double splitError(Split split) {
@@ -120,25 +90,4 @@ public class RegressionTreeTrainer {
         return variance(left) * left.size() + variance(right) * right.size();
     }
 
-    private static interface Split {
-        List<LabeledMixedItem> getLeft();
-
-        List<LabeledMixedItem> getRight();
-    }
-
-    @Value
-    private static class ContinuousSplit implements Split {
-        String attribute;
-        Double splitValue;
-        List<LabeledMixedItem> left;
-        List<LabeledMixedItem> right;
-    }
-
-    @Value
-    private static class DiscreteSplit implements Split {
-        String attribute;
-        Integer leftChoice;
-        List<LabeledMixedItem> left;
-        List<LabeledMixedItem> right;
-    }
 }
