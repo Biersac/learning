@@ -1,17 +1,21 @@
 package com.flightstats.analytics.tree;
 
 import com.google.common.collect.Sets;
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Value
+@EqualsAndHashCode
+@ToString
+@AllArgsConstructor
 public class Item {
-    String id;
-    Map<String, Integer> discreteValues;
-    Map<String, Double> continuousValues;
+    private final String id;
+    private final Map<String, Integer> discreteValues;
+    private final Map<String, Double> continuousValues;
 
     public Integer getDiscreteValue(String attribute) {
         return discreteValues.get(attribute);
