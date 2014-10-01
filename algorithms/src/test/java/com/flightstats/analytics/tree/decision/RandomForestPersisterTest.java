@@ -31,7 +31,6 @@ public class RandomForestPersisterTest {
         RandomForestPersister testClass = new RandomForestPersister();
         testClass.save(forest, writer);
         writer.flush();
-        System.out.println("writer.toString() = " + writer.toString());
 
         RandomForest loaded = testClass.load(new ByteArrayInputStream(writer.toByteArray()));
 

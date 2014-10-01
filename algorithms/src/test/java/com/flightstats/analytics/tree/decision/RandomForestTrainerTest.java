@@ -28,7 +28,7 @@ public class RandomForestTrainerTest {
         RandomForestTrainer testClass = new RandomForestTrainer(new DecisionTreeTrainer(new Splitter<>()));
         List<String> attributes = tennisAttributes();
 
-        TrainingResults result = testClass.train("tennis", 5, trainingData, attributes, -1);
+        TrainingResults result = testClass.train("tennis", 50, trainingData, attributes, -1);
         RandomForest tennis = result.getForest();
         //this is a nice case of where the random forest works probabilistically. It's not a clear-cut case,
         // so not all the trees return the same result. On average, though, these should be a good day for tennis.
