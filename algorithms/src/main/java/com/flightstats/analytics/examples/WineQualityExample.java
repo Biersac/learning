@@ -1,8 +1,12 @@
 package com.flightstats.analytics.examples;
 
+import com.flightstats.analytics.tree.LabeledMixedItem;
 import com.flightstats.analytics.tree.MixedItem;
 import com.flightstats.analytics.tree.Splitter;
-import com.flightstats.analytics.tree.regression.*;
+import com.flightstats.analytics.tree.regression.RegressionRandomForest;
+import com.flightstats.analytics.tree.regression.RegressionRandomForestTrainer;
+import com.flightstats.analytics.tree.regression.RegressionTreeTrainer;
+import com.flightstats.analytics.tree.regression.TrainingResults;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,7 +30,7 @@ public class WineQualityExample {
         List<String> attributes = headers.stream().limit(headers.size() - 1).collect(toList());
         System.out.println("attributes = " + attributes);
 
-        List<LabeledMixedItem> data = Files.lines(dataFile).skip(1).map(line -> {
+        List<LabeledMixedItem<Double>> data = Files.lines(dataFile).skip(1).map(line -> {
             String[] pieces = line.split(";");
 
             Map<String, Double> values = new HashMap<>(pieces.length);
@@ -34,20 +38,20 @@ public class WineQualityExample {
                 String piece = pieces[i];
                 values.put(headers.get(i), Double.parseDouble(piece));
             }
-            return new LabeledMixedItem(new MixedItem("dummy", new HashMap<>(), values), Double.parseDouble(pieces[pieces.length - 1]));
+            return new LabeledMixedItem<>(new MixedItem("dummy", new HashMap<>(), values), Double.parseDouble(pieces[pieces.length - 1]));
         }).collect(toList());
 
         Collections.shuffle(data);
 
         int totalNumberOfItems = data.size();
         int numberOfTestItems = totalNumberOfItems / 3;
-        List<LabeledMixedItem> testSet = data.stream().limit(numberOfTestItems).collect(toList());
-        List<LabeledMixedItem> trainingSet = data.stream().skip(numberOfTestItems).collect(toList());
+        List<LabeledMixedItem<Double>> testSet = data.stream().limit(numberOfTestItems).collect(toList());
+        List<LabeledMixedItem<Double>> trainingSet = data.stream().skip(numberOfTestItems).collect(toList());
 
         double average = data.stream().mapToDouble(LabeledMixedItem::getLabel).average().getAsDouble();
         System.out.println("average value = " + average);
 
-        RegressionRandomForestTrainer trainer = new RegressionRandomForestTrainer(new RegressionTreeTrainer(new Splitter()));
+        RegressionRandomForestTrainer trainer = new RegressionRandomForestTrainer(new RegressionTreeTrainer(new Splitter<>()));
         TrainingResults trainingResults = trainer.train("white wine", 100, trainingSet, attributes);
         double outOfBagError = trainingResults.calculateOutOfBagError();
         System.out.println("\noutOfBagError = " + outOfBagError);

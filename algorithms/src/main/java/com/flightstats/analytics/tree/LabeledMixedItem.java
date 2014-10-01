@@ -1,12 +1,11 @@
-package com.flightstats.analytics.tree.regression;
+package com.flightstats.analytics.tree;
 
-import com.flightstats.analytics.tree.MixedItem;
 import lombok.Value;
 
 @Value
-public class LabeledMixedItem {
+public class LabeledMixedItem<T> {
     MixedItem item;
-    Double label;
+    T label;
 
     public Integer getDiscreteValue(String attribute) {
         return item.getDiscreteValue(attribute);

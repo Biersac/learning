@@ -1,14 +1,13 @@
 package com.flightstats.analytics.tree;
 
-import com.flightstats.analytics.tree.regression.LabeledMixedItem;
 import lombok.Value;
 
 import java.util.List;
 
 @Value
-public class ContinuousSplit implements Split {
+public class ContinuousSplit<T> implements Split<T> {
     String attribute;
     Double splitValue;
-    List<LabeledMixedItem> left;
-    List<LabeledMixedItem> right;
+    List<LabeledMixedItem<T>> left;
+    List<LabeledMixedItem<T>> right;
 }

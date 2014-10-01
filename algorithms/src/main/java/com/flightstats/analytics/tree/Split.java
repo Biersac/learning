@@ -1,11 +1,21 @@
 package com.flightstats.analytics.tree;
 
-import com.flightstats.analytics.tree.regression.LabeledMixedItem;
-
 import java.util.List;
 
-public interface Split {
-    List<LabeledMixedItem> getLeft();
+public interface Split<T> {
+    List<LabeledMixedItem<T>> getLeft();
 
-    List<LabeledMixedItem> getRight();
+    List<LabeledMixedItem<T>> getRight();
+
+    default int totalNumberOfItems() {
+        return getLeft().size() + getRight().size();
+    }
+
+    default int numberOnLeft() {
+        return getLeft().size();
+    }
+
+    default int numberOnRight() {
+        return getRight().size();
+    }
 }
