@@ -1,5 +1,8 @@
 package com.flightstats.analytics.examples;
 
+import com.flightstats.analytics.tree.Item;
+import com.flightstats.analytics.tree.LabeledItem;
+import com.flightstats.analytics.tree.Splitter;
 import com.flightstats.analytics.tree.decision.*;
 
 import java.io.IOException;
@@ -21,9 +24,9 @@ import static java.util.stream.Collectors.toList;
 /**
  * This is an example of how one could train and test a RandomForest. It is doing recognition of handwritten digits,
  * using data from http://archive.ics.uci.edu/ml/datasets (The "Optical Recognition of Handwritten Digits Data Set").
- * <p/>
+ * <p>
  * The OOB error estimate & the test error should be about 4-5%, using this code.
- * <p/>
+ * <p>
  * This should be run from the root of the project (not from within the algorithms directory),
  * unless you want to edit the code and change the location of the training/test data.
  */
@@ -40,7 +43,7 @@ public class OptDigitsExample {
         }
         Path modelFile = modelDirectory.resolve("optdigits.rf.model.gz");
 
-        //here's an example of how you to persist a model to re-use at a later time.
+//        here's an example of how you to persist a model to re-use at a later time.
         saveForest(forest, modelFile);
         RandomForest loadedForest = loadForestFromDisk(modelFile);
 
@@ -60,7 +63,7 @@ public class OptDigitsExample {
     }
 
     private static void test(Path dir, RandomForest forest) throws IOException {
-        List<LabeledItem> testData = extractLabeledItems(Files.lines(dir.resolve("optdigits.tes")));
+        List<LabeledItem<Integer>> testData = extractLabeledItems(Files.lines(dir.resolve("optdigits.tes")));
         AtomicInteger totalItems = new AtomicInteger();
         AtomicInteger totalRight = new AtomicInteger();
         AtomicInteger totalWrong = new AtomicInteger();
@@ -93,18 +96,18 @@ public class OptDigitsExample {
     }
 
     private static RandomForest train(Path dir) throws IOException {
-        RandomForestTrainer trainer = new RandomForestTrainer(new DecisionTreeTrainer(new EntropyCalculator()));
+        RandomForestTrainer trainer = new RandomForestTrainer(new DecisionTreeTrainer(new Splitter<>()));
 
-        List<LabeledItem> trainingData = extractLabeledItems(Files.lines(dir.resolve("optdigits.tra")));
-        List<String> attributes = trainingData.stream().findFirst().get().attributes();
+        List<LabeledItem<Integer>> trainingData = extractLabeledItems(Files.lines(dir.resolve("optdigits.tra")));
+        List<String> attributes = trainingData.get(0).attributes();
 
         TrainingResults trainingResults = trainer.train("digits", 200, trainingData, attributes, -1);
-        System.out.println("oob error est. = " + trainingResults.calculateOutOfBagError(-1));
+        System.out.println("\noob error est. = " + trainingResults.calculateOutOfBagError(-1));
 
         return trainingResults.getForest();
     }
 
-    private static List<LabeledItem> extractLabeledItems(Stream<String> lines) {
+    private static List<LabeledItem<Integer>> extractLabeledItems(Stream<String> lines) {
         AtomicInteger lineNumber = new AtomicInteger();
         return lines.map(line -> line.split(",")).map(array -> {
             lineNumber.incrementAndGet();
@@ -115,7 +118,7 @@ public class OptDigitsExample {
                 data.put(String.valueOf(i), value / 4);
             }
             String label = array[array.length - 1];
-            return new LabeledItem(new Item(String.valueOf(lineNumber.get()), data), Integer.valueOf(label));
+            return new LabeledItem<>(new Item(String.valueOf(lineNumber.get()), data, new HashMap<>()), Integer.valueOf(label));
         }).collect(toList());
     }
 }

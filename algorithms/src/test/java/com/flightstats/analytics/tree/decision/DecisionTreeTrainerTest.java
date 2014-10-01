@@ -1,9 +1,16 @@
 package com.flightstats.analytics.tree.decision;
 
+import com.flightstats.analytics.tree.Item;
+import com.flightstats.analytics.tree.LabeledItem;
+import com.flightstats.analytics.tree.Splitter;
+import com.flightstats.analytics.tree.Tree;
 import lombok.AllArgsConstructor;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.flightstats.analytics.tree.decision.DecisionTreeTrainerTest.Humidity.HIGH;
 import static com.flightstats.analytics.tree.decision.DecisionTreeTrainerTest.Humidity.NORMAL;
@@ -13,38 +20,42 @@ import static com.flightstats.analytics.tree.decision.DecisionTreeTrainerTest.Wi
 import static com.flightstats.analytics.tree.decision.DecisionTreeTrainerTest.Wind.WEAK;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class DecisionTreeTrainerTest {
-
-    private EntropyCalculator entropyCalculator = mock(EntropyCalculator.class);
+    @Test
+    public void testImpurity_allSame() throws Exception {
+        DecisionTreeTrainer testClass = new DecisionTreeTrainer(mock(Splitter.class));
+        LabeledItem<Integer> item1 = new LabeledItem<>(null, 1);
+        LabeledItem<Integer> item2 = new LabeledItem<>(null, 1);
+        LabeledItem<Integer> item3 = new LabeledItem<>(null, 1);
+        double impurity = testClass.impurity(Arrays.asList(item1, item2, item3));
+        assertEquals(0.0, impurity, 0.0001);
+    }
 
     @Test
-    public void testBestGain() throws Exception {
-        List<LabeledItem> items = Arrays.asList();
-        when(entropyCalculator.entropyGain(items, "bitter")).thenReturn(0.05);
-        when(entropyCalculator.entropyGain(items, "sweet")).thenReturn(0.06);
-        when(entropyCalculator.entropyGain(items, "sour")).thenReturn(0.07);
-
-        DecisionTreeTrainer testClass = new DecisionTreeTrainer(entropyCalculator);
-        assertEquals(Optional.of("sour"), testClass.bestEntropyGain(items, Arrays.asList("bitter", "sour", "sweet"), 3));
+    public void testImpurity_allDifferent() throws Exception {
+        DecisionTreeTrainer testClass = new DecisionTreeTrainer(mock(Splitter.class));
+        LabeledItem<Integer> item1 = new LabeledItem<>(null, 1);
+        LabeledItem<Integer> item2 = new LabeledItem<>(null, 2);
+        double impurity = testClass.impurity(Arrays.asList(item1, item2));
+        assertEquals(0.25, impurity, 0.0001);
     }
 
     @Test
     public void testSimpleExample() throws Exception {
-        LabeledItem one = new LabeledItem(new Item("1", fruitData(true, true, false)), 1);
-        LabeledItem two = new LabeledItem(new Item("2", fruitData(true, true, false)), 1);
+        LabeledItem<Integer> one = new LabeledItem<>(new Item("1", fruitData(true, true, false), new HashMap<>()), 1);
+        LabeledItem<Integer> two = new LabeledItem<>(new Item("2", fruitData(true, true, false), new HashMap<>()), 1);
 
-        LabeledItem three = new LabeledItem(new Item("3", fruitData(false, true, true)), 0);
-        LabeledItem four = new LabeledItem(new Item("4", fruitData(false, false, true)), 0);
-        LabeledItem five = new LabeledItem(new Item("5", fruitData(true, false, true)), 0);
+        LabeledItem<Integer> three = new LabeledItem<>(new Item("3", fruitData(false, true, true), new HashMap<>()), 0);
+        LabeledItem<Integer> four = new LabeledItem<>(new Item("4", fruitData(false, false, true), new HashMap<>()), 0);
+        LabeledItem<Integer> five = new LabeledItem<>(new Item("5", fruitData(true, false, true), new HashMap<>()), 0);
 
-        LabeledItem six = new LabeledItem(new Item("6", fruitData(true, true, true)), 1);
+        LabeledItem<Integer> six = new LabeledItem<>(new Item("6", fruitData(true, true, true), new HashMap<>()), 1);
 
         //we put 'one' in the list twice, to unbalance the weights and make bitter the best entropy gain. (otherwise, the resulting tree isn't deterministic)
-        List<LabeledItem> labeledItems = Arrays.asList(one, one, two, three, four, five, six);
+        List<LabeledItem<Integer>> labeledItems = Arrays.asList(one, one, two, three, four, five, six);
 
-        DecisionTree tree = new DecisionTreeTrainer(new EntropyCalculator()).train("fruits", labeledItems, Arrays.asList("sweet", "sour", "bitter"), 0);
+        Tree<Integer> tree = new DecisionTreeTrainer(new Splitter<>()).train("fruits", labeledItems, Arrays.asList("sweet", "sour", "bitter"), 3, 0);
 
         assertEquals((Integer) 1, tree.evaluate(one.getItem()));
         assertEquals((Integer) 1, tree.evaluate(two.getItem()));
@@ -54,8 +65,8 @@ public class DecisionTreeTrainerTest {
         assertEquals((Integer) 1, tree.evaluate(six.getItem()));
 
         //we like these, because they aren't bitter (which is the strongest signal in the tree above).
-        assertEquals((Integer) 1, tree.evaluate(new Item("bland", fruitData(false, false, false))));
-        assertEquals((Integer) 1, tree.evaluate(new Item("sour", fruitData(false, true, false))));
+        assertEquals((Integer) 1, tree.evaluate(new Item("bland", fruitData(false, false, false), new HashMap<>())));
+        assertEquals((Integer) 1, tree.evaluate(new Item("sour", fruitData(false, true, false), new HashMap<>())));
     }
 
     private Map<String, Integer> fruitData(boolean sweet, boolean sour, boolean bitter) {
@@ -68,34 +79,32 @@ public class DecisionTreeTrainerTest {
 
     @Test
     public void testTennisExample() throws Exception {
-        List<LabeledItem> trainingData = Arrays.asList(
-                new LabeledItem(new Item("1", tennisData(SUNNY, HOT, HIGH, WEAK)), 0),
-                new LabeledItem(new Item("1", tennisData(SUNNY, HOT, HIGH, STRONG)), 0),
-                new LabeledItem(new Item("1", tennisData(OVERCAST, HOT, HIGH, WEAK)), 1),
-                new LabeledItem(new Item("1", tennisData(RAIN, MILD, HIGH, WEAK)), 1),
+        List<LabeledItem<Integer>> trainingData = Arrays.asList(
+                new LabeledItem<>(new Item("1", tennisData(SUNNY, HOT, HIGH, WEAK), new HashMap<>()), 0),
+                new LabeledItem<>(new Item("1", tennisData(SUNNY, HOT, HIGH, STRONG), new HashMap<>()), 0),
+                new LabeledItem<>(new Item("1", tennisData(OVERCAST, HOT, HIGH, WEAK), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("1", tennisData(RAIN, MILD, HIGH, WEAK), new HashMap<>()), 1),
 
-                new LabeledItem(new Item("1", tennisData(RAIN, COOL, NORMAL, WEAK)), 1),
-                new LabeledItem(new Item("1", tennisData(RAIN, COOL, NORMAL, STRONG)), 0),
-                new LabeledItem(new Item("1", tennisData(OVERCAST, COOL, NORMAL, STRONG)), 1),
-                new LabeledItem(new Item("1", tennisData(SUNNY, MILD, HIGH, WEAK)), 0),
+                new LabeledItem<>(new Item("1", tennisData(RAIN, COOL, NORMAL, WEAK), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("1", tennisData(RAIN, COOL, NORMAL, STRONG), new HashMap<>()), 0),
+                new LabeledItem<>(new Item("1", tennisData(OVERCAST, COOL, NORMAL, STRONG), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("1", tennisData(SUNNY, MILD, HIGH, WEAK), new HashMap<>()), 0),
 
-                new LabeledItem(new Item("1", tennisData(SUNNY, COOL, NORMAL, WEAK)), 1),
-                new LabeledItem(new Item("1", tennisData(RAIN, MILD, NORMAL, WEAK)), 1),
-                new LabeledItem(new Item("1", tennisData(SUNNY, MILD, NORMAL, STRONG)), 1),
-                new LabeledItem(new Item("1", tennisData(OVERCAST, MILD, HIGH, STRONG)), 1),
+                new LabeledItem<>(new Item("1", tennisData(SUNNY, COOL, NORMAL, WEAK), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("1", tennisData(RAIN, MILD, NORMAL, WEAK), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("1", tennisData(SUNNY, MILD, NORMAL, STRONG), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("1", tennisData(OVERCAST, MILD, HIGH, STRONG), new HashMap<>()), 1),
 
-                new LabeledItem(new Item("1", tennisData(OVERCAST, HOT, NORMAL, WEAK)), 1),
-                new LabeledItem(new Item("1", tennisData(RAIN, MILD, HIGH, STRONG)), 0)
+                new LabeledItem<>(new Item("1", tennisData(OVERCAST, HOT, NORMAL, WEAK), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("1", tennisData(RAIN, MILD, HIGH, STRONG), new HashMap<>()), 0)
         );
 
-        DecisionTreeTrainer testClass = new DecisionTreeTrainer(new EntropyCalculator());
+        com.flightstats.analytics.tree.decision.DecisionTreeTrainer testClass = new com.flightstats.analytics.tree.decision.DecisionTreeTrainer(new Splitter<>());
         List<String> attributes = Arrays.asList("outlook", "temp", "humidity", "wind");
-        Optional<String> bestEntropyGain = testClass.bestEntropyGain(trainingData, attributes, 4);
-        assertEquals(Optional.<Object>of("outlook"), bestEntropyGain);
 
-        DecisionTree tennis = testClass.train("tennis", trainingData, attributes, 0);
+        Tree<Integer> tennis = testClass.train("tennis", trainingData, attributes, 4, 0);
 
-        assertEquals((Integer) 0, tennis.evaluate(new Item("2", tennisData(RAIN, HOT, HIGH, STRONG))));
+        assertEquals((Integer) 0, tennis.evaluate(new Item("2", tennisData(RAIN, HOT, HIGH, STRONG), new HashMap<>())));
         //todo: figure out some assertions to make here?
     }
 
@@ -131,5 +140,6 @@ public class DecisionTreeTrainerTest {
         WEAK(1), STRONG(2);
         int value;
     }
+
 
 }

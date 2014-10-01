@@ -1,5 +1,7 @@
 package com.flightstats.analytics.tree.decision;
 
+import com.flightstats.analytics.tree.Item;
+import com.flightstats.analytics.tree.Tree;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -10,10 +12,10 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode
 @ToString
 public class RandomForest {
-    private final List<DecisionTree> trees;
+    private final List<Tree<Integer>> trees;
     private final Integer defaultLabel;
 
-    public RandomForest(List<DecisionTree> trees, Integer defaultLabel) {
+    public RandomForest(List<Tree<Integer>> trees, Integer defaultLabel) {
         this.trees = trees;
         this.defaultLabel = defaultLabel;
     }

@@ -1,5 +1,10 @@
 package com.flightstats.analytics.tree.decision;
 
+import com.flightstats.analytics.tree.ContinuousTreeNode;
+import com.flightstats.analytics.tree.DiscreteTreeNode;
+import com.flightstats.analytics.tree.LeafNode;
+import com.flightstats.analytics.tree.TreeNode;
+import com.flightstats.analytics.tree.regression.RegressionRandomForest;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import lombok.SneakyThrows;
@@ -8,32 +13,81 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Will persist random forests, and reload them. Uses Gson as the serialization mechanism.
- * <p/>
+ * <p>
  * We should consider not using json, as it's really inefficient, from a space perspective.
  */
 public class RandomForestPersister {
 
     private Gson buildGson() {
-        Type integerKeyedMapType = new TypeToken<Map<Integer, TreeNode>>() {
-        }.getType();
 
+        //gah! This is horrible!
         return new GsonBuilder()
-                //this is necessary, since gson will always map json numbers into Doubles. We need Integer.
-                .registerTypeAdapter(integerKeyedMapType, (JsonDeserializer<Map<Integer, TreeNode>>) (json, typeOfT, context) -> {
-                    JsonObject map = json.getAsJsonObject();
-                    Map<Integer, TreeNode> result = new HashMap<>();
-                    Set<Map.Entry<String, JsonElement>> entries = map.entrySet();
-                    for (Map.Entry<String, JsonElement> entry : entries) {
-                        result.put(Integer.valueOf(entry.getKey()), context.deserialize(entry.getValue(), TreeNode.class));
+                .registerTypeAdapter(new TypeToken<TreeNode<Double>>() {
+                }.getType(), (JsonSerializer<TreeNode>) (instance, type, context) -> {
+                    JsonElement element = context.serialize(instance, instance.getClass());
+                    JsonObject o = element.getAsJsonObject();
+                    return o;
+                })
+                .registerTypeAdapter(new TypeToken<TreeNode<Integer>>() {
+                }.getType(), (JsonSerializer<TreeNode>) (instance, type, context) -> {
+                    JsonElement element = context.serialize(instance, instance.getClass());
+                    JsonObject o = element.getAsJsonObject();
+                    return o;
+                })
+
+                .registerTypeAdapter(LeafNode.class, (JsonSerializer<LeafNode>) (instance, type, context) -> {
+                    JsonObject o = new JsonObject();
+                    o.addProperty("className", "LeafNode");
+                    String responseType = instance.getResponseValue().getClass().getSimpleName();
+                    o.addProperty("responseType", responseType);
+                    if ("Integer".equals(responseType)) {
+                        o.addProperty("responseValue", (Integer) instance.getResponseValue());
+                    } else {
+                        o.addProperty("responseValue", (Double) instance.getResponseValue());
                     }
-                    return result;
+                    return o;
+                })
+
+                .registerTypeAdapter(DiscreteTreeNode.class, (JsonSerializer<DiscreteTreeNode>) (instance, type, context) -> {
+                    JsonObject o = new JsonObject();
+                    o.addProperty("className", "DiscreteTreeNode");
+                    o.addProperty("attribute", instance.getAttribute());
+                    o.addProperty("discreteSplitValue", instance.getDiscreteSplitValue());
+                    o.add("left", context.serialize(instance.getLeft()));
+                    o.add("right", context.serialize(instance.getRight()));
+                    return o;
+                })
+                .registerTypeAdapter(ContinuousTreeNode.class, (JsonSerializer<ContinuousTreeNode>) (instance, type, context) -> {
+                    JsonObject o = new JsonObject();
+                    o.addProperty("className", "ContinuousTreeNode");
+                    o.addProperty("attribute", instance.getAttribute());
+                    o.addProperty("continuousSplitValue", instance.getContinuousSplitValue());
+                    o.add("left", context.serialize(instance.getLeft()));
+                    o.add("right", context.serialize(instance.getRight()));
+                    return o;
+                })
+                .registerTypeAdapter(TreeNode.class, (JsonDeserializer<TreeNode>) (json, type, context) -> {
+                    String className = json.getAsJsonObject().get("className").getAsString();
+                    switch (className) {
+                        case "DiscreteTreeNode":
+                            return context.deserialize(json, DiscreteTreeNode.class);
+                        case "ContinuousTreeNode":
+                            return context.deserialize(json, ContinuousTreeNode.class);
+                        default:
+                            return context.deserialize(json, LeafNode.class);
+                    }
+                })
+                .registerTypeAdapter(LeafNode.class, (JsonDeserializer<LeafNode>) (json, type, context) -> {
+                    JsonObject o = json.getAsJsonObject();
+                    String responseType = o.getAsJsonPrimitive("responseType").getAsString();
+                    if ("Integer".equals(responseType)) {
+                        return new LeafNode<>(o.getAsJsonPrimitive("responseValue").getAsInt());
+                    } else {
+                        return new LeafNode<>(o.getAsJsonPrimitive("responseValue").getAsDouble());
+                    }
                 })
                 .create();
     }
@@ -49,4 +103,17 @@ public class RandomForestPersister {
         buildGson().toJson(forest, writer);
         writer.flush();
     }
+
+    @SneakyThrows
+    public RegressionRandomForest loadRegression(InputStream inputStream) {
+        return buildGson().fromJson(new InputStreamReader(inputStream), RegressionRandomForest.class);
+    }
+
+    @SneakyThrows
+    public void save(RegressionRandomForest forest, OutputStream outputStream) {
+        OutputStreamWriter writer = new OutputStreamWriter(outputStream);
+        buildGson().toJson(forest, writer);
+        writer.flush();
+    }
+
 }

@@ -1,8 +1,9 @@
 package com.flightstats.analytics.examples;
 
-import com.flightstats.analytics.tree.regression.LabeledMixedItem;
-import com.flightstats.analytics.tree.regression.MixedItem;
-import com.flightstats.analytics.tree.regression.RegressionTree;
+import com.flightstats.analytics.tree.Item;
+import com.flightstats.analytics.tree.LabeledItem;
+import com.flightstats.analytics.tree.Splitter;
+import com.flightstats.analytics.tree.Tree;
 import com.flightstats.analytics.tree.regression.RegressionTreeTrainer;
 
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class Cars93Example {
     public static void main(String[] args) throws IOException {
         Path dataDirectory = Paths.get("algorithms/testdata/cars93");
         Stream<String> lines = Files.lines(dataDirectory.resolve("Cars93.csv")).skip(1);
-        List<LabeledMixedItem> data = lines.map(line -> {
+        List<LabeledItem<Double>> data = lines.map(line -> {
             String[] fields = line.split(",");
             double price = Double.parseDouble(fields[5]);
             Map<String, Double> continuousValues = new HashMap<>();
@@ -55,11 +56,11 @@ public class Cars93Example {
             addWheelBase(fields[20], continuousValues);
             addType(fields[3], discreteValues);
 
-            return new LabeledMixedItem(new MixedItem(fields[0], discreteValues, continuousValues), price);
+            return new LabeledItem<>(new Item(fields[0], discreteValues, continuousValues), price);
         }).collect(toList());
 
-        RegressionTreeTrainer trainer = new RegressionTreeTrainer();
-        RegressionTree tree = trainer.train("cars93", data, Arrays.asList(MANUAL_AVAIL, HORSEPOWER, WHEELBASE, DRIVETRAIN, TYPE), 5);
+        RegressionTreeTrainer trainer = new RegressionTreeTrainer(new Splitter());
+        Tree<Double> tree = trainer.train("cars93", data, Arrays.asList(MANUAL_AVAIL, HORSEPOWER, WHEELBASE, DRIVETRAIN, TYPE), 5);
 
         data.forEach(i -> {
             double result = tree.evaluate(i.getItem());
@@ -75,7 +76,7 @@ public class Cars93Example {
         discreteValues.put(DRIVETRAIN, 0);
         discreteValues.put(TYPE, typeMapping.get("\"Sporty\""));
 
-        MixedItem test = new MixedItem("test", discreteValues, continuousValues);
+        Item test = new Item("test", discreteValues, continuousValues);
         double result = tree.evaluate(test);
         System.out.println("result = " + result);
     }

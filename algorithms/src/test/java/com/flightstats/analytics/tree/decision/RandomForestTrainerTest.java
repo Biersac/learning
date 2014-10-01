@@ -1,6 +1,8 @@
 package com.flightstats.analytics.tree.decision;
 
-import com.google.gson.Gson;
+import com.flightstats.analytics.tree.Item;
+import com.flightstats.analytics.tree.LabeledItem;
+import com.flightstats.analytics.tree.Splitter;
 import lombok.AllArgsConstructor;
 import org.junit.Test;
 
@@ -21,53 +23,42 @@ public class RandomForestTrainerTest {
 
     @Test
     public void testTennisExample() throws Exception {
-        List<LabeledItem> trainingData = buildTennisTrainingSet();
+        List<LabeledItem<Integer>> trainingData = buildTennisTrainingSet();
 
-        RandomForestTrainer testClass = new RandomForestTrainer(new DecisionTreeTrainer(new EntropyCalculator()));
+        RandomForestTrainer testClass = new RandomForestTrainer(new DecisionTreeTrainer(new Splitter<>()));
         List<String> attributes = tennisAttributes();
 
-        TrainingResults result = testClass.train("tennis", 5, trainingData, attributes, -1);
+        TrainingResults result = testClass.train("tennis", 50, trainingData, attributes, -1);
         RandomForest tennis = result.getForest();
         //this is a nice case of where the random forest works probabilistically. It's not a clear-cut case,
         // so not all the trees return the same result. On average, though, these should be a good day for tennis.
-        assertEquals((Integer) 1, tennis.evaluate(new Item("1", tennisData(RAIN, HOT, NORMAL, WEAK))));
-        assertEquals((Integer) 1, tennis.evaluate(new Item("1", tennisData(RAIN, MILD, HIGH, WEAK))));
-    }
-
-    @Test
-    public void testGsonSerialization() throws Exception {
-        RandomForest randomForest = new RandomForestTrainer(new DecisionTreeTrainer(new EntropyCalculator())).train("test", 50, buildTennisTrainingSet(), tennisAttributes(), 0).getForest();
-        Gson gson = new Gson();
-        String json = gson.toJson(randomForest);
-
-        RandomForest deserialized = gson.fromJson(json, RandomForest.class);
-        assertEquals(randomForest, deserialized);
+        assertEquals((Integer) 1, tennis.evaluate(new Item("1", tennisData(RAIN, HOT, NORMAL, WEAK), new HashMap<>())));
+        assertEquals((Integer) 1, tennis.evaluate(new Item("1", tennisData(RAIN, MILD, HIGH, WEAK), new HashMap<>())));
     }
 
     public static List<String> tennisAttributes() {
         return Arrays.asList("outlook", "temp", "humidity", "wind");
     }
 
-
-    public static List<LabeledItem> buildTennisTrainingSet() {
+    public static List<LabeledItem<Integer>> buildTennisTrainingSet() {
         return Arrays.asList(
-                new LabeledItem(new Item("1", tennisData(SUNNY, HOT, HIGH, WEAK)), 0),
-                new LabeledItem(new Item("2", tennisData(SUNNY, HOT, HIGH, STRONG)), 0),
-                new LabeledItem(new Item("3", tennisData(OVERCAST, HOT, HIGH, WEAK)), 1),
-                new LabeledItem(new Item("4", tennisData(RAIN, MILD, HIGH, WEAK)), 1),
+                new LabeledItem<>(new Item("1", tennisData(SUNNY, HOT, HIGH, WEAK), new HashMap<>()), 0),
+                new LabeledItem<>(new Item("2", tennisData(SUNNY, HOT, HIGH, STRONG), new HashMap<>()), 0),
+                new LabeledItem<>(new Item("3", tennisData(OVERCAST, HOT, HIGH, WEAK), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("4", tennisData(RAIN, MILD, HIGH, WEAK), new HashMap<>()), 1),
 
-                new LabeledItem(new Item("5", tennisData(RAIN, COOL, NORMAL, WEAK)), 1),
-                new LabeledItem(new Item("6", tennisData(RAIN, COOL, NORMAL, STRONG)), 0),
-                new LabeledItem(new Item("7", tennisData(OVERCAST, COOL, NORMAL, STRONG)), 1),
-                new LabeledItem(new Item("8", tennisData(SUNNY, MILD, HIGH, WEAK)), 0),
+                new LabeledItem<>(new Item("5", tennisData(RAIN, COOL, NORMAL, WEAK), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("6", tennisData(RAIN, COOL, NORMAL, STRONG), new HashMap<>()), 0),
+                new LabeledItem<>(new Item("7", tennisData(OVERCAST, COOL, NORMAL, STRONG), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("8", tennisData(SUNNY, MILD, HIGH, WEAK), new HashMap<>()), 0),
 
-                new LabeledItem(new Item("9", tennisData(SUNNY, COOL, NORMAL, WEAK)), 1),
-                new LabeledItem(new Item("10", tennisData(RAIN, MILD, NORMAL, WEAK)), 1),
-                new LabeledItem(new Item("11", tennisData(SUNNY, MILD, NORMAL, STRONG)), 1),
-                new LabeledItem(new Item("12", tennisData(OVERCAST, MILD, HIGH, STRONG)), 1),
+                new LabeledItem<>(new Item("9", tennisData(SUNNY, COOL, NORMAL, WEAK), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("10", tennisData(RAIN, MILD, NORMAL, WEAK), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("11", tennisData(SUNNY, MILD, NORMAL, STRONG), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("12", tennisData(OVERCAST, MILD, HIGH, STRONG), new HashMap<>()), 1),
 
-                new LabeledItem(new Item("13", tennisData(OVERCAST, HOT, NORMAL, WEAK)), 1),
-                new LabeledItem(new Item("14", tennisData(RAIN, MILD, HIGH, STRONG)), 0)
+                new LabeledItem<>(new Item("13", tennisData(OVERCAST, HOT, NORMAL, WEAK), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("14", tennisData(RAIN, MILD, HIGH, STRONG), new HashMap<>()), 0)
         );
     }
 

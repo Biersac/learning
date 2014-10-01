@@ -1,83 +1,93 @@
 package com.flightstats.analytics.tree.decision;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.flightstats.analytics.tree.*;
 
 import java.util.*;
+import java.util.stream.Stream;
 
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
+import static com.google.common.collect.Iterables.concat;
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.stream.Collectors.*;
 
 public class DecisionTreeTrainer {
+    private final Splitter<Integer> splitter;
 
-    private final EntropyCalculator entropyCalculator;
-
-    public DecisionTreeTrainer(EntropyCalculator entropyCalculator) {
-        this.entropyCalculator = entropyCalculator;
+    public DecisionTreeTrainer(Splitter<Integer> splitter) {
+        this.splitter = splitter;
     }
 
-    /**
-     * Classic ID3 decision tree.
-     * http://www.cs.princeton.edu/courses/archive/spr07/cos424/papers/mitchell-dectrees.pdf
-     */
-    public DecisionTree train(String name, List<LabeledItem> labeledItems, List<String> attributesToConsider, int defaultLabel) {
-        Map<String, Set<Integer>> validValuesForAttributes = validValuesForAttributes(labeledItems, attributesToConsider);
-        return new DecisionTree(name, trainRecursively(labeledItems, attributesToConsider, attributesToConsider.size(), true, defaultLabel, validValuesForAttributes));
+    public Tree<Integer> train(String name, List<LabeledItem<Integer>> trainingData, Collection<String> attributes, int numberOfFeaturesToChoose, Integer defaultValue) {
+        return new Tree<>(name, buildNode(trainingData, attributes, numberOfFeaturesToChoose, defaultValue));
     }
 
-    /**
-     * For use in training random forests.
-     * Suggestion is to use sqrt(# of features) as the maxFeaturesToUse (although Breiman says 2 works fine).
-     */
-    public DecisionTree train(String name, List<LabeledItem> labeledItems, List<String> attributesToConsider, int maxFeaturesToUse, boolean removeFeaturesAtNode, int defaultLabel, Map<String, Set<Integer>> validValuesForAttributes) {
-        return new DecisionTree(name, trainRecursively(labeledItems, attributesToConsider, maxFeaturesToUse, removeFeaturesAtNode, defaultLabel, validValuesForAttributes));
+    private TreeNode<Integer> buildNode(List<LabeledItem<Integer>> trainingData, Collection<String> attributes, int numberOfFeaturesToChoose, Integer defaultValue) {
+        if (trainingData.isEmpty()) {
+            return new LeafNode<>(defaultValue);
+        }
+        if (allAreSameLabel(trainingData)) {
+            return new LeafNode<>(trainingData.get(0).getLabel());
+        }
+        if (allTrainingDataIsTheSame(trainingData, attributes)) {
+            return new LeafNode<>(findMostCommonLabel(trainingData));
+        }
+
+        Split<Integer> split = bestSplit(trainingData, attributes, numberOfFeaturesToChoose);
+        if (split == null) {
+            return new LeafNode<>(defaultValue);
+        }
+        //todo: check to see if the change in S is too small, or if there aren't enough things to do a split. maybe. [probably not needed for random forests, though...]
+        if (split instanceof ContinuousSplit) {
+            ContinuousSplit continuousSplit = (ContinuousSplit) split;
+            return new ContinuousTreeNode<>(continuousSplit.getAttribute(), continuousSplit.getSplitValue(), buildNode(split.getLeft(), attributes, numberOfFeaturesToChoose, defaultValue), buildNode(split.getRight(), attributes, numberOfFeaturesToChoose, defaultValue));
+        } else {
+            DiscreteSplit<Integer> discreteSplit = (DiscreteSplit) split;
+            return new DiscreteTreeNode<>(discreteSplit.getAttribute(), discreteSplit.getLeftChoice(), buildNode(split.getLeft(), attributes, numberOfFeaturesToChoose, defaultValue), buildNode(split.getRight(), attributes, numberOfFeaturesToChoose, defaultValue));
+        }
     }
 
-    Map<String, Set<Integer>> validValuesForAttributes(List<LabeledItem> items, List<String> attributes) {
-        Map<String, Set<Integer>> results = new HashMap<>();
-        for (String attribute : attributes) {
-            results.put(attribute, new HashSet<>());
-        }
-        for (String attribute : attributes) {
-            for (LabeledItem item : items) {
-                results.get(attribute).add(item.value(attribute));
-            }
-        }
-        return results;
+    private Integer findMostCommonLabel(List<LabeledItem<Integer>> trainingData) {
+        Map<Integer, Integer> countsByLabel = trainingData.stream().collect(groupingBy(LabeledItem::getLabel, reducing(0, LabeledItem::getLabel, Integer::sum)));
+        return countsByLabel.entrySet().stream().max(Comparator.comparing(Map.Entry::getValue)).get().getKey();
     }
 
-    private TreeNode trainRecursively(List<LabeledItem> labeledItems, List<String> attributesToConsider, int maxFeaturesToUse, boolean removeFeaturesAtNode, int defaultLabel, Map<String, Set<Integer>> validValuesForAttributes) {
-        if (labeledItems.isEmpty()) {
-            return new TreeNode(defaultLabel);
-        }
-        if (allAreSameLabel(labeledItems)) {
-            return new TreeNode(labeledItems.get(0).getLabel());
-        }
-        if (attributesToConsider.isEmpty()) {
-            return new TreeNode(defaultLabel);
-        }
-        String bestAttribute = bestEntropyGain(labeledItems, attributesToConsider, maxFeaturesToUse).get();
-        List<String> newAttributes = new ArrayList<>(attributesToConsider);
-        if (removeFeaturesAtNode) {
-            newAttributes.remove(bestAttribute);
-        }
-
-        Set<Integer> valuesForAttribute = validValuesForAttributes.get(bestAttribute);
-        Map<Integer, TreeNode> children = new HashMap<>();
-        for (Integer integer : valuesForAttribute) {
-            children.put(integer, trainRecursively(labeledItems.stream().filter(li -> integer.equals(li.value(bestAttribute))).collect(toList()), newAttributes, maxFeaturesToUse, removeFeaturesAtNode, defaultLabel, validValuesForAttributes));
-        }
-
-        return new TreeNode(bestAttribute, children);
-    }
-
-    private boolean allAreSameLabel(List<LabeledItem> labeledItems) {
+    private boolean allAreSameLabel(List<LabeledItem<Integer>> labeledItems) {
         return labeledItems.stream().map(LabeledItem::getLabel).distinct().count() == 1;
     }
 
-    @VisibleForTesting
-    Optional<String> bestEntropyGain(List<LabeledItem> items, List<String> attributes, int maxFeaturesToUse) {
-        attributes = new ArrayList<>(attributes);
-        Collections.shuffle(attributes);
-        return attributes.stream().limit(maxFeaturesToUse).max(comparing(o -> entropyCalculator.entropyGain(items, o)));
+    private boolean allTrainingDataIsTheSame(List<LabeledItem<Integer>> trainingData, Collection<String> attributes) {
+        Stream<List<Object>> objectStream = trainingData.stream()
+                .map(lmi -> attributes.stream().map(a -> Arrays.asList(lmi.getContinuousValue(a), lmi.getDiscreteValue(a))).collect(toList()));
+        return objectStream.distinct().count() == 1;
     }
+
+    private Split<Integer> bestSplit(List<LabeledItem<Integer>> items, Collection<String> attributes, int numberOfFeaturesToChoose) {
+        if (numberOfFeaturesToChoose < attributes.size()) {
+            List<String> newAttributes = new ArrayList<>(attributes);
+            Collections.shuffle(newAttributes);
+            attributes = newAttributes.stream().limit(numberOfFeaturesToChoose).collect(toList());
+        }
+        return attributes.stream().flatMap(attribute -> {
+            List<ContinuousSplit<Integer>> continuousSplits = splitter.possibleContinuousSplits(items, attribute);
+            List<DiscreteSplit<Integer>> discreteSplits = splitter.possibleDiscreteSplits(items, attribute);
+            List<Split<Integer>> splits = newArrayList(concat(continuousSplits, discreteSplits));
+//            splits.forEach(split -> System.out.println("splitS: " + splitError(split)));
+            return splits.stream();
+        }).min(Comparator.comparing(this::impurity)).orElse(null);
+    }
+
+    private double impurity(Split<Integer> split) {
+        int total = split.totalNumberOfItems();
+        int left = split.numberOnLeft();
+        int right = split.numberOnRight();
+        return ((double) left / total) * impurity(split.getLeft()) + ((double) right / total) * impurity(split.getRight());
+    }
+
+    //visible for testing
+    double impurity(List<LabeledItem<Integer>> items) {
+        int total = items.size();
+        Collection<Integer> counts = items.stream().collect(groupingBy(LabeledItem::getLabel, reducing(0, LabeledItem::getLabel, Integer::sum))).values();
+        return counts.stream().mapToDouble(c -> ((double) c / total)).map(n -> n * (1 - n)).sum();
+    }
+
+
 }
