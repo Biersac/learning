@@ -52,7 +52,7 @@ public class RegressionRandomForestTrainer {
         return dataToUse;
     }
 
-    public static Stream<Void> times(int number) {
+    private static Stream<Void> times(int number) {
         return Arrays.stream(new Void[number]);
     }
 

@@ -2,6 +2,8 @@ package com.flightstats.analytics.tree;
 
 import lombok.Value;
 
+import java.util.List;
+
 @Value
 public class LabeledMixedItem<T> {
     MixedItem item;
@@ -13,5 +15,9 @@ public class LabeledMixedItem<T> {
 
     public Double getContinuousValue(String attribute) {
         return item.getContinuousValue(attribute);
+    }
+
+    public List<String> attributes() {
+        return item.getAttributes();
     }
 }

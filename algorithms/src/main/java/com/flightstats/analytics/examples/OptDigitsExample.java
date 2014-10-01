@@ -1,10 +1,14 @@
 package com.flightstats.analytics.examples;
 
-import com.flightstats.analytics.tree.decisionv1.*;
+import com.flightstats.analytics.tree.LabeledMixedItem;
+import com.flightstats.analytics.tree.MixedItem;
+import com.flightstats.analytics.tree.Splitter;
+import com.flightstats.analytics.tree.decision.DecisionTreeTrainer;
+import com.flightstats.analytics.tree.decision.RandomForest;
+import com.flightstats.analytics.tree.decision.RandomForestTrainer;
+import com.flightstats.analytics.tree.decision.TrainingResults;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -41,26 +43,26 @@ public class OptDigitsExample {
         Path modelFile = modelDirectory.resolve("optdigits.rf.model.gz");
 
         //here's an example of how you to persist a model to re-use at a later time.
-        saveForest(forest, modelFile);
-        RandomForest loadedForest = loadForestFromDisk(modelFile);
+//        saveForest(forest, modelFile);
+//        RandomForest loadedForest = loadForestFromDisk(modelFile);
 
-        test(dataDirectory, loadedForest);
+        test(dataDirectory, forest);
     }
 
-    private static RandomForest loadForestFromDisk(Path modelFile) throws IOException {
-        try (InputStream modelReader = new GZIPInputStream(Files.newInputStream(modelFile))) {
-            return new RandomForestPersister().load(modelReader);
-        }
-    }
+//    private static RandomForest loadForestFromDisk(Path modelFile) throws IOException {
+//        try (InputStream modelReader = new GZIPInputStream(Files.newInputStream(modelFile))) {
+//            return new RandomForestPersister().load(modelReader);
+//        }
+//    }
 
-    private static void saveForest(RandomForest forest, Path modelFile) throws IOException {
-        try (OutputStream modelWriter = new GZIPOutputStream(Files.newOutputStream(modelFile))) {
-            new RandomForestPersister().save(forest, modelWriter);
-        }
-    }
+//    private static void saveForest(RandomForest forest, Path modelFile) throws IOException {
+//        try (OutputStream modelWriter = new GZIPOutputStream(Files.newOutputStream(modelFile))) {
+//            new RandomForestPersister().save(forest, modelWriter);
+//        }
+//    }
 
     private static void test(Path dir, RandomForest forest) throws IOException {
-        List<LabeledItem> testData = extractLabeledItems(Files.lines(dir.resolve("optdigits.tes")));
+        List<LabeledMixedItem<Integer>> testData = extractLabeledItems(Files.lines(dir.resolve("optdigits.tes")));
         AtomicInteger totalItems = new AtomicInteger();
         AtomicInteger totalRight = new AtomicInteger();
         AtomicInteger totalWrong = new AtomicInteger();
@@ -93,18 +95,18 @@ public class OptDigitsExample {
     }
 
     private static RandomForest train(Path dir) throws IOException {
-        RandomForestTrainer trainer = new RandomForestTrainer(new DecisionTreeTrainer(new EntropyCalculator()));
+        RandomForestTrainer trainer = new RandomForestTrainer(new DecisionTreeTrainer(new Splitter<>()));
 
-        List<LabeledItem> trainingData = extractLabeledItems(Files.lines(dir.resolve("optdigits.tra")));
-        List<String> attributes = trainingData.stream().findFirst().get().attributes();
+        List<LabeledMixedItem<Integer>> trainingData = extractLabeledItems(Files.lines(dir.resolve("optdigits.tra")));
+        List<String> attributes = trainingData.get(0).attributes();
 
         TrainingResults trainingResults = trainer.train("digits", 200, trainingData, attributes, -1);
-        System.out.println("oob error est. = " + trainingResults.calculateOutOfBagError(-1));
+        System.out.println("\noob error est. = " + trainingResults.calculateOutOfBagError(-1));
 
         return trainingResults.getForest();
     }
 
-    private static List<LabeledItem> extractLabeledItems(Stream<String> lines) {
+    private static List<LabeledMixedItem<Integer>> extractLabeledItems(Stream<String> lines) {
         AtomicInteger lineNumber = new AtomicInteger();
         return lines.map(line -> line.split(",")).map(array -> {
             lineNumber.incrementAndGet();
@@ -115,7 +117,7 @@ public class OptDigitsExample {
                 data.put(String.valueOf(i), value / 4);
             }
             String label = array[array.length - 1];
-            return new LabeledItem(new Item(String.valueOf(lineNumber.get()), data), Integer.valueOf(label));
+            return new LabeledMixedItem<>(new MixedItem(String.valueOf(lineNumber.get()), data, new HashMap<>()), Integer.valueOf(label));
         }).collect(toList());
     }
 }
