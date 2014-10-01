@@ -3,12 +3,11 @@ package com.flightstats.analytics.examples;
 import com.flightstats.analytics.tree.LabeledMixedItem;
 import com.flightstats.analytics.tree.MixedItem;
 import com.flightstats.analytics.tree.Splitter;
-import com.flightstats.analytics.tree.decision.DecisionTreeTrainer;
-import com.flightstats.analytics.tree.decision.RandomForest;
-import com.flightstats.analytics.tree.decision.RandomForestTrainer;
-import com.flightstats.analytics.tree.decision.TrainingResults;
+import com.flightstats.analytics.tree.decision.*;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -42,24 +43,24 @@ public class OptDigitsExample {
         }
         Path modelFile = modelDirectory.resolve("optdigits.rf.model.gz");
 
-        //here's an example of how you to persist a model to re-use at a later time.
-//        saveForest(forest, modelFile);
-//        RandomForest loadedForest = loadForestFromDisk(modelFile);
+//        here's an example of how you to persist a model to re-use at a later time.
+        saveForest(forest, modelFile);
+        RandomForest loadedForest = loadForestFromDisk(modelFile);
 
-        test(dataDirectory, forest);
+        test(dataDirectory, loadedForest);
     }
 
-//    private static RandomForest loadForestFromDisk(Path modelFile) throws IOException {
-//        try (InputStream modelReader = new GZIPInputStream(Files.newInputStream(modelFile))) {
-//            return new RandomForestPersister().load(modelReader);
-//        }
-//    }
+    private static RandomForest loadForestFromDisk(Path modelFile) throws IOException {
+        try (InputStream modelReader = new GZIPInputStream(Files.newInputStream(modelFile))) {
+            return new RandomForestPersister().load(modelReader);
+        }
+    }
 
-//    private static void saveForest(RandomForest forest, Path modelFile) throws IOException {
-//        try (OutputStream modelWriter = new GZIPOutputStream(Files.newOutputStream(modelFile))) {
-//            new RandomForestPersister().save(forest, modelWriter);
-//        }
-//    }
+    private static void saveForest(RandomForest forest, Path modelFile) throws IOException {
+        try (OutputStream modelWriter = new GZIPOutputStream(Files.newOutputStream(modelFile))) {
+            new RandomForestPersister().save(forest, modelWriter);
+        }
+    }
 
     private static void test(Path dir, RandomForest forest) throws IOException {
         List<LabeledMixedItem<Integer>> testData = extractLabeledItems(Files.lines(dir.resolve("optdigits.tes")));
