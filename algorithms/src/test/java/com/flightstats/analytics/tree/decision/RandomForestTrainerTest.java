@@ -3,7 +3,6 @@ package com.flightstats.analytics.tree.decision;
 import com.flightstats.analytics.tree.LabeledMixedItem;
 import com.flightstats.analytics.tree.MixedItem;
 import com.flightstats.analytics.tree.Splitter;
-import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import org.junit.Test;
 
@@ -37,20 +36,9 @@ public class RandomForestTrainerTest {
         assertEquals((Integer) 1, tennis.evaluate(new MixedItem("1", tennisData(RAIN, MILD, HIGH, WEAK), new HashMap<>())));
     }
 
-    @Test
-    public void testGsonSerialization() throws Exception {
-        RandomForest randomForest = new RandomForestTrainer(new DecisionTreeTrainer(new Splitter<>())).train("test", 50, buildTennisTrainingSet(), tennisAttributes(), 0).getForest();
-        Gson gson = new Gson();
-        String json = gson.toJson(randomForest);
-
-        RandomForest deserialized = gson.fromJson(json, RandomForest.class);
-        assertEquals(randomForest, deserialized);
-    }
-
     public static List<String> tennisAttributes() {
         return Arrays.asList("outlook", "temp", "humidity", "wind");
     }
-
 
     public static List<LabeledMixedItem<Integer>> buildTennisTrainingSet() {
         return Arrays.asList(
