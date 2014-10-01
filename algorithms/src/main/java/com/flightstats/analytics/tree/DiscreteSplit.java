@@ -8,6 +8,6 @@ import java.util.List;
 public class DiscreteSplit<T> implements Split<T> {
     String attribute;
     Integer leftChoice;
-    List<LabeledMixedItem<T>> left;
-    List<LabeledMixedItem<T>> right;
+    List<LabeledItem<T>> left;
+    List<LabeledItem<T>> right;
 }

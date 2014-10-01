@@ -1,6 +1,6 @@
 package com.flightstats.analytics.tree.decision;
 
-import com.flightstats.analytics.tree.MixedItem;
+import com.flightstats.analytics.tree.Item;
 import com.flightstats.analytics.tree.Tree;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -21,7 +21,7 @@ public class RandomForest {
     }
 
     //todo: should this also return a confidence?
-    public Integer evaluate(MixedItem item) {
+    public Integer evaluate(Item item) {
         Map<Integer, Integer> countsByLabel = trees.parallelStream().map(tree -> tree.evaluate(item)).collect(Collectors.toMap(t -> t, r -> 1, (integer, integer2) -> integer + integer2));
         Integer mostCommonLabel = null;
         int numberOfMostCommonLabel = 0;

@@ -5,8 +5,8 @@ import lombok.Value;
 import java.util.List;
 
 @Value
-public class LabeledMixedItem<T> {
-    MixedItem item;
+public class LabeledItem<T> {
+    Item item;
     T label;
 
     public Integer getDiscreteValue(String attribute) {

@@ -1,7 +1,7 @@
 package com.flightstats.analytics.tree.decision;
 
-import com.flightstats.analytics.tree.LabeledMixedItem;
-import com.flightstats.analytics.tree.MixedItem;
+import com.flightstats.analytics.tree.Item;
+import com.flightstats.analytics.tree.LabeledItem;
 import com.flightstats.analytics.tree.Splitter;
 import org.junit.Test;
 
@@ -34,14 +34,14 @@ public class RandomForestPersisterTest {
 
         RandomForest loaded = testClass.load(new ByteArrayInputStream(writer.toByteArray()));
 
-        assertEquals((Integer) 1, loaded.evaluate(new MixedItem("a", tennisData(RAIN, HOT, NORMAL, WEAK), new HashMap<>())));
-        assertEquals((Integer) 1, loaded.evaluate(new MixedItem("b", tennisData(RAIN, MILD, HIGH, WEAK), new HashMap<>())));
+        assertEquals((Integer) 1, loaded.evaluate(new Item("a", tennisData(RAIN, HOT, NORMAL, WEAK), new HashMap<>())));
+        assertEquals((Integer) 1, loaded.evaluate(new Item("b", tennisData(RAIN, MILD, HIGH, WEAK), new HashMap<>())));
 
         assertEquals(forest, loaded);
     }
 
     private TrainingResults train() {
-        List<LabeledMixedItem<Integer>> labeledItems = buildTennisTrainingSet();
+        List<LabeledItem<Integer>> labeledItems = buildTennisTrainingSet();
         RandomForestTrainer trainer = new RandomForestTrainer(new DecisionTreeTrainer(new Splitter<>()));
         return trainer.train("test", 50, labeledItems, tennisAttributes(), -1);
     }

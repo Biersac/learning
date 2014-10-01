@@ -6,24 +6,24 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 public class Splitter<T> {
-    private ContinuousSplit<T> split(List<LabeledMixedItem<T>> items, String attribute, Double value) {
-        List<LabeledMixedItem<T>> left = items.stream().filter(i -> i.getContinuousValue(attribute) < value).collect(toList());
-        List<LabeledMixedItem<T>> right = items.stream().filter(i -> i.getContinuousValue(attribute) >= value).collect(toList());
+    private ContinuousSplit<T> split(List<LabeledItem<T>> items, String attribute, Double value) {
+        List<LabeledItem<T>> left = items.stream().filter(i -> i.getContinuousValue(attribute) < value).collect(toList());
+        List<LabeledItem<T>> right = items.stream().filter(i -> i.getContinuousValue(attribute) >= value).collect(toList());
         return new ContinuousSplit<>(attribute, value, left, right);
     }
 
-    private DiscreteSplit<T> split(List<LabeledMixedItem<T>> items, String attribute, Integer attributeValue) {
-        List<LabeledMixedItem<T>> left = items.stream().filter(i -> attributeValue.equals(i.getDiscreteValue(attribute))).collect(toList());
-        List<LabeledMixedItem<T>> right = items.stream().filter(i -> !attributeValue.equals(i.getDiscreteValue(attribute))).collect(toList());
+    private DiscreteSplit<T> split(List<LabeledItem<T>> items, String attribute, Integer attributeValue) {
+        List<LabeledItem<T>> left = items.stream().filter(i -> attributeValue.equals(i.getDiscreteValue(attribute))).collect(toList());
+        List<LabeledItem<T>> right = items.stream().filter(i -> !attributeValue.equals(i.getDiscreteValue(attribute))).collect(toList());
         return new DiscreteSplit<>(attribute, attributeValue, left, right);
     }
 
-    public List<DiscreteSplit<T>> possibleDiscreteSplits(List<LabeledMixedItem<T>> items, String attribute) {
+    public List<DiscreteSplit<T>> possibleDiscreteSplits(List<LabeledItem<T>> items, String attribute) {
         Set<Integer> attributeValues = items.stream().map(i -> i.getDiscreteValue(attribute)).filter(Objects::nonNull).collect(toSet());
         return attributeValues.stream().map(av -> split(items, attribute, av)).collect(toList());
     }
 
-    private List<Double> splitPoints(List<LabeledMixedItem<T>> items, String attribute) {
+    private List<Double> splitPoints(List<LabeledItem<T>> items, String attribute) {
         double[] values = items.stream()
                 .map(i -> i.getContinuousValue(attribute))
                 .filter(Objects::nonNull)
@@ -40,7 +40,7 @@ public class Splitter<T> {
         return results;
     }
 
-    public List<ContinuousSplit<T>> possibleContinuousSplits(List<LabeledMixedItem<T>> items, String attribute) {
+    public List<ContinuousSplit<T>> possibleContinuousSplits(List<LabeledItem<T>> items, String attribute) {
         return splitPoints(items, attribute).stream().map(v -> split(items, attribute, v)).collect(toList());
     }
 }

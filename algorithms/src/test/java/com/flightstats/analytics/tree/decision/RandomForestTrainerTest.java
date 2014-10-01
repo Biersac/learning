@@ -1,7 +1,7 @@
 package com.flightstats.analytics.tree.decision;
 
-import com.flightstats.analytics.tree.LabeledMixedItem;
-import com.flightstats.analytics.tree.MixedItem;
+import com.flightstats.analytics.tree.Item;
+import com.flightstats.analytics.tree.LabeledItem;
 import com.flightstats.analytics.tree.Splitter;
 import lombok.AllArgsConstructor;
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class RandomForestTrainerTest {
 
     @Test
     public void testTennisExample() throws Exception {
-        List<LabeledMixedItem<Integer>> trainingData = buildTennisTrainingSet();
+        List<LabeledItem<Integer>> trainingData = buildTennisTrainingSet();
 
         RandomForestTrainer testClass = new RandomForestTrainer(new DecisionTreeTrainer(new Splitter<>()));
         List<String> attributes = tennisAttributes();
@@ -32,33 +32,33 @@ public class RandomForestTrainerTest {
         RandomForest tennis = result.getForest();
         //this is a nice case of where the random forest works probabilistically. It's not a clear-cut case,
         // so not all the trees return the same result. On average, though, these should be a good day for tennis.
-        assertEquals((Integer) 1, tennis.evaluate(new MixedItem("1", tennisData(RAIN, HOT, NORMAL, WEAK), new HashMap<>())));
-        assertEquals((Integer) 1, tennis.evaluate(new MixedItem("1", tennisData(RAIN, MILD, HIGH, WEAK), new HashMap<>())));
+        assertEquals((Integer) 1, tennis.evaluate(new Item("1", tennisData(RAIN, HOT, NORMAL, WEAK), new HashMap<>())));
+        assertEquals((Integer) 1, tennis.evaluate(new Item("1", tennisData(RAIN, MILD, HIGH, WEAK), new HashMap<>())));
     }
 
     public static List<String> tennisAttributes() {
         return Arrays.asList("outlook", "temp", "humidity", "wind");
     }
 
-    public static List<LabeledMixedItem<Integer>> buildTennisTrainingSet() {
+    public static List<LabeledItem<Integer>> buildTennisTrainingSet() {
         return Arrays.asList(
-                new LabeledMixedItem<>(new MixedItem("1", tennisData(SUNNY, HOT, HIGH, WEAK), new HashMap<>()), 0),
-                new LabeledMixedItem<>(new MixedItem("2", tennisData(SUNNY, HOT, HIGH, STRONG), new HashMap<>()), 0),
-                new LabeledMixedItem<>(new MixedItem("3", tennisData(OVERCAST, HOT, HIGH, WEAK), new HashMap<>()), 1),
-                new LabeledMixedItem<>(new MixedItem("4", tennisData(RAIN, MILD, HIGH, WEAK), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("1", tennisData(SUNNY, HOT, HIGH, WEAK), new HashMap<>()), 0),
+                new LabeledItem<>(new Item("2", tennisData(SUNNY, HOT, HIGH, STRONG), new HashMap<>()), 0),
+                new LabeledItem<>(new Item("3", tennisData(OVERCAST, HOT, HIGH, WEAK), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("4", tennisData(RAIN, MILD, HIGH, WEAK), new HashMap<>()), 1),
 
-                new LabeledMixedItem<>(new MixedItem("5", tennisData(RAIN, COOL, NORMAL, WEAK), new HashMap<>()), 1),
-                new LabeledMixedItem<>(new MixedItem("6", tennisData(RAIN, COOL, NORMAL, STRONG), new HashMap<>()), 0),
-                new LabeledMixedItem<>(new MixedItem("7", tennisData(OVERCAST, COOL, NORMAL, STRONG), new HashMap<>()), 1),
-                new LabeledMixedItem<>(new MixedItem("8", tennisData(SUNNY, MILD, HIGH, WEAK), new HashMap<>()), 0),
+                new LabeledItem<>(new Item("5", tennisData(RAIN, COOL, NORMAL, WEAK), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("6", tennisData(RAIN, COOL, NORMAL, STRONG), new HashMap<>()), 0),
+                new LabeledItem<>(new Item("7", tennisData(OVERCAST, COOL, NORMAL, STRONG), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("8", tennisData(SUNNY, MILD, HIGH, WEAK), new HashMap<>()), 0),
 
-                new LabeledMixedItem<>(new MixedItem("9", tennisData(SUNNY, COOL, NORMAL, WEAK), new HashMap<>()), 1),
-                new LabeledMixedItem<>(new MixedItem("10", tennisData(RAIN, MILD, NORMAL, WEAK), new HashMap<>()), 1),
-                new LabeledMixedItem<>(new MixedItem("11", tennisData(SUNNY, MILD, NORMAL, STRONG), new HashMap<>()), 1),
-                new LabeledMixedItem<>(new MixedItem("12", tennisData(OVERCAST, MILD, HIGH, STRONG), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("9", tennisData(SUNNY, COOL, NORMAL, WEAK), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("10", tennisData(RAIN, MILD, NORMAL, WEAK), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("11", tennisData(SUNNY, MILD, NORMAL, STRONG), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("12", tennisData(OVERCAST, MILD, HIGH, STRONG), new HashMap<>()), 1),
 
-                new LabeledMixedItem<>(new MixedItem("13", tennisData(OVERCAST, HOT, NORMAL, WEAK), new HashMap<>()), 1),
-                new LabeledMixedItem<>(new MixedItem("14", tennisData(RAIN, MILD, HIGH, STRONG), new HashMap<>()), 0)
+                new LabeledItem<>(new Item("13", tennisData(OVERCAST, HOT, NORMAL, WEAK), new HashMap<>()), 1),
+                new LabeledItem<>(new Item("14", tennisData(RAIN, MILD, HIGH, STRONG), new HashMap<>()), 0)
         );
     }
 

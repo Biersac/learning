@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @Value
-public class MixedItem {
+public class Item {
     String id;
     Map<String, Integer> discreteValues;
     Map<String, Double> continuousValues;

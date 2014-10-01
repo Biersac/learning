@@ -16,11 +16,11 @@ public class DecisionTreeTrainer {
         this.splitter = splitter;
     }
 
-    public Tree<Integer> train(String name, List<LabeledMixedItem<Integer>> trainingData, Collection<String> attributes, int numberOfFeaturesToChoose, Integer defaultValue) {
+    public Tree<Integer> train(String name, List<LabeledItem<Integer>> trainingData, Collection<String> attributes, int numberOfFeaturesToChoose, Integer defaultValue) {
         return new Tree<>(name, buildNode(trainingData, attributes, numberOfFeaturesToChoose, defaultValue));
     }
 
-    private TreeNode<Integer> buildNode(List<LabeledMixedItem<Integer>> trainingData, Collection<String> attributes, int numberOfFeaturesToChoose, Integer defaultValue) {
+    private TreeNode<Integer> buildNode(List<LabeledItem<Integer>> trainingData, Collection<String> attributes, int numberOfFeaturesToChoose, Integer defaultValue) {
         if (trainingData.isEmpty()) {
             return new LeafNode<>(defaultValue);
         }
@@ -45,22 +45,22 @@ public class DecisionTreeTrainer {
         }
     }
 
-    private Integer findMostCommonLabel(List<LabeledMixedItem<Integer>> trainingData) {
-        Map<Integer, Integer> countsByLabel = trainingData.stream().collect(groupingBy(LabeledMixedItem::getLabel, reducing(0, LabeledMixedItem::getLabel, Integer::sum)));
+    private Integer findMostCommonLabel(List<LabeledItem<Integer>> trainingData) {
+        Map<Integer, Integer> countsByLabel = trainingData.stream().collect(groupingBy(LabeledItem::getLabel, reducing(0, LabeledItem::getLabel, Integer::sum)));
         return countsByLabel.entrySet().stream().max(Comparator.comparing(Map.Entry::getValue)).get().getKey();
     }
 
-    private boolean allAreSameLabel(List<LabeledMixedItem<Integer>> labeledItems) {
-        return labeledItems.stream().map(LabeledMixedItem::getLabel).distinct().count() == 1;
+    private boolean allAreSameLabel(List<LabeledItem<Integer>> labeledItems) {
+        return labeledItems.stream().map(LabeledItem::getLabel).distinct().count() == 1;
     }
 
-    private boolean allTrainingDataIsTheSame(List<LabeledMixedItem<Integer>> trainingData, Collection<String> attributes) {
+    private boolean allTrainingDataIsTheSame(List<LabeledItem<Integer>> trainingData, Collection<String> attributes) {
         Stream<List<Object>> objectStream = trainingData.stream()
                 .map(lmi -> attributes.stream().map(a -> Arrays.asList(lmi.getContinuousValue(a), lmi.getDiscreteValue(a))).collect(toList()));
         return objectStream.distinct().count() == 1;
     }
 
-    private Split<Integer> bestSplit(List<LabeledMixedItem<Integer>> items, Collection<String> attributes, int numberOfFeaturesToChoose) {
+    private Split<Integer> bestSplit(List<LabeledItem<Integer>> items, Collection<String> attributes, int numberOfFeaturesToChoose) {
         if (numberOfFeaturesToChoose < attributes.size()) {
             List<String> newAttributes = new ArrayList<>(attributes);
             Collections.shuffle(newAttributes);
@@ -83,9 +83,9 @@ public class DecisionTreeTrainer {
     }
 
     //visible for testing
-    double impurity(List<LabeledMixedItem<Integer>> items) {
+    double impurity(List<LabeledItem<Integer>> items) {
         int total = items.size();
-        Collection<Integer> counts = items.stream().collect(groupingBy(LabeledMixedItem::getLabel, reducing(0, LabeledMixedItem::getLabel, Integer::sum))).values();
+        Collection<Integer> counts = items.stream().collect(groupingBy(LabeledItem::getLabel, reducing(0, LabeledItem::getLabel, Integer::sum))).values();
         return counts.stream().mapToDouble(c -> ((double) c / total)).map(n -> n * (1 - n)).sum();
     }
 

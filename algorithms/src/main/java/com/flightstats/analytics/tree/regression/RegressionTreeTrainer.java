@@ -16,11 +16,11 @@ public class RegressionTreeTrainer {
         this.splitter = splitter;
     }
 
-    public Tree<Double> train(String name, List<LabeledMixedItem<Double>> trainingData, Collection<String> attributes, int numberOfFeaturesToChoose) {
+    public Tree<Double> train(String name, List<LabeledItem<Double>> trainingData, Collection<String> attributes, int numberOfFeaturesToChoose) {
         return new Tree<>(name, buildNode(trainingData, attributes, numberOfFeaturesToChoose));
     }
 
-    private TreeNode<Double> buildNode(List<LabeledMixedItem<Double>> trainingData, Collection<String> attributes, int numberOfFeaturesToChoose) {
+    private TreeNode<Double> buildNode(List<LabeledItem<Double>> trainingData, Collection<String> attributes, int numberOfFeaturesToChoose) {
 //        System.out.println("initial S: " + (variance(trainingData) * trainingData.size()));
         if (allTrainingDataIsTheSame(trainingData, attributes)) {
             double averageResponse = averageResponse(trainingData);
@@ -45,26 +45,26 @@ public class RegressionTreeTrainer {
         }
     }
 
-    private boolean allTrainingDataIsTheSame(List<LabeledMixedItem<Double>> trainingData, Collection<String> attributes) {
+    private boolean allTrainingDataIsTheSame(List<LabeledItem<Double>> trainingData, Collection<String> attributes) {
         Stream<List<Object>> objectStream = trainingData.stream()
                 .map(lmi -> attributes.stream().map(a -> Arrays.asList(lmi.getContinuousValue(a), lmi.getDiscreteValue(a))).collect(toList()));
         return objectStream.distinct().count() == 1;
     }
 
-    private double averageResponse(List<LabeledMixedItem<Double>> items) {
-        return items.stream().mapToDouble(LabeledMixedItem::getLabel).average().orElse(Double.NaN);
+    private double averageResponse(List<LabeledItem<Double>> items) {
+        return items.stream().mapToDouble(LabeledItem::getLabel).average().orElse(Double.NaN);
     }
 
-    private double variance(List<LabeledMixedItem<Double>> items) {
+    private double variance(List<LabeledItem<Double>> items) {
         double average = averageResponse(items);
-        return items.stream().mapToDouble(LabeledMixedItem::getLabel).map(value -> square(value - average)).sum() / items.size();
+        return items.stream().mapToDouble(LabeledItem::getLabel).map(value -> square(value - average)).sum() / items.size();
     }
 
     private double square(double value) {
         return value * value;
     }
 
-    private Split bestSplit(List<LabeledMixedItem<Double>> items, Collection<String> attributes, int numberOfFeaturesToChoose) {
+    private Split bestSplit(List<LabeledItem<Double>> items, Collection<String> attributes, int numberOfFeaturesToChoose) {
         if (numberOfFeaturesToChoose < attributes.size()) {
             List<String> newAttributes = new ArrayList<>(attributes);
             Collections.shuffle(newAttributes);
@@ -83,7 +83,7 @@ public class RegressionTreeTrainer {
         return splitError(split.getLeft(), split.getRight());
     }
 
-    private double splitError(List<LabeledMixedItem<Double>> left, List<LabeledMixedItem<Double>> right) {
+    private double splitError(List<LabeledItem<Double>> left, List<LabeledItem<Double>> right) {
         return variance(left) * left.size() + variance(right) * right.size();
     }
 

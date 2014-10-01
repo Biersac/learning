@@ -1,7 +1,7 @@
 package com.flightstats.analytics.examples;
 
-import com.flightstats.analytics.tree.LabeledMixedItem;
-import com.flightstats.analytics.tree.MixedItem;
+import com.flightstats.analytics.tree.Item;
+import com.flightstats.analytics.tree.LabeledItem;
 import com.flightstats.analytics.tree.Splitter;
 import com.flightstats.analytics.tree.decision.*;
 
@@ -63,7 +63,7 @@ public class OptDigitsExample {
     }
 
     private static void test(Path dir, RandomForest forest) throws IOException {
-        List<LabeledMixedItem<Integer>> testData = extractLabeledItems(Files.lines(dir.resolve("optdigits.tes")));
+        List<LabeledItem<Integer>> testData = extractLabeledItems(Files.lines(dir.resolve("optdigits.tes")));
         AtomicInteger totalItems = new AtomicInteger();
         AtomicInteger totalRight = new AtomicInteger();
         AtomicInteger totalWrong = new AtomicInteger();
@@ -98,7 +98,7 @@ public class OptDigitsExample {
     private static RandomForest train(Path dir) throws IOException {
         RandomForestTrainer trainer = new RandomForestTrainer(new DecisionTreeTrainer(new Splitter<>()));
 
-        List<LabeledMixedItem<Integer>> trainingData = extractLabeledItems(Files.lines(dir.resolve("optdigits.tra")));
+        List<LabeledItem<Integer>> trainingData = extractLabeledItems(Files.lines(dir.resolve("optdigits.tra")));
         List<String> attributes = trainingData.get(0).attributes();
 
         TrainingResults trainingResults = trainer.train("digits", 200, trainingData, attributes, -1);
@@ -107,7 +107,7 @@ public class OptDigitsExample {
         return trainingResults.getForest();
     }
 
-    private static List<LabeledMixedItem<Integer>> extractLabeledItems(Stream<String> lines) {
+    private static List<LabeledItem<Integer>> extractLabeledItems(Stream<String> lines) {
         AtomicInteger lineNumber = new AtomicInteger();
         return lines.map(line -> line.split(",")).map(array -> {
             lineNumber.incrementAndGet();
@@ -118,7 +118,7 @@ public class OptDigitsExample {
                 data.put(String.valueOf(i), value / 4);
             }
             String label = array[array.length - 1];
-            return new LabeledMixedItem<>(new MixedItem(String.valueOf(lineNumber.get()), data, new HashMap<>()), Integer.valueOf(label));
+            return new LabeledItem<>(new Item(String.valueOf(lineNumber.get()), data, new HashMap<>()), Integer.valueOf(label));
         }).collect(toList());
     }
 }

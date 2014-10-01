@@ -13,11 +13,11 @@ public class ContinuousTreeNode<T> implements TreeNode<T> {
     TreeNode<T> right;
 
     @Override
-    public T evaluate(MixedItem item) {
+    public T evaluate(Item item) {
         return choose(item).evaluate(item);
     }
 
-    private TreeNode<T> choose(MixedItem item) {
+    private TreeNode<T> choose(Item item) {
         Double value = item.getContinuousValue(attribute);
         boolean less = value < continuousSplitValue;
         return less ? left : right;

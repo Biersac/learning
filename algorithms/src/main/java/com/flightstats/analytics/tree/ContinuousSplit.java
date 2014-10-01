@@ -8,6 +8,6 @@ import java.util.List;
 public class ContinuousSplit<T> implements Split<T> {
     String attribute;
     Double splitValue;
-    List<LabeledMixedItem<T>> left;
-    List<LabeledMixedItem<T>> right;
+    List<LabeledItem<T>> left;
+    List<LabeledItem<T>> right;
 }

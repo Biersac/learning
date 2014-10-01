@@ -7,7 +7,7 @@ public class LeafNode<T> implements TreeNode<T> {
     T responseValue;
 
     @Override
-    public T evaluate(MixedItem item) {
+    public T evaluate(Item item) {
         return responseValue;
     }
 

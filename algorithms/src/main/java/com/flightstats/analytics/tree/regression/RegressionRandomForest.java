@@ -1,6 +1,6 @@
 package com.flightstats.analytics.tree.regression;
 
-import com.flightstats.analytics.tree.MixedItem;
+import com.flightstats.analytics.tree.Item;
 import com.flightstats.analytics.tree.Tree;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -17,7 +17,7 @@ public class RegressionRandomForest {
     }
 
     //todo: should this also return a confidence?
-    public Double evaluate(MixedItem item) {
+    public Double evaluate(Item item) {
         return trees.parallelStream()
                 .map(tree -> tree.evaluate(item))
                 .mapToDouble(d -> d)

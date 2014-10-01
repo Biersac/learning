@@ -1,7 +1,7 @@
 package com.flightstats.analytics.examples;
 
-import com.flightstats.analytics.tree.LabeledMixedItem;
-import com.flightstats.analytics.tree.MixedItem;
+import com.flightstats.analytics.tree.Item;
+import com.flightstats.analytics.tree.LabeledItem;
 import com.flightstats.analytics.tree.Splitter;
 import com.flightstats.analytics.tree.decision.DecisionTreeTrainer;
 import com.flightstats.analytics.tree.decision.RandomForest;
@@ -30,7 +30,7 @@ public class WineQualityDecisionExample {
         List<String> attributes = headers.stream().limit(headers.size() - 1).collect(toList());
         System.out.println("attributes = " + attributes);
 
-        List<LabeledMixedItem<Integer>> data = Files.lines(dataFile).skip(1).map(line -> {
+        List<LabeledItem<Integer>> data = Files.lines(dataFile).skip(1).map(line -> {
             String[] pieces = line.split(";");
 
             Map<String, Double> values = new HashMap<>(pieces.length);
@@ -38,17 +38,17 @@ public class WineQualityDecisionExample {
                 String piece = pieces[i];
                 values.put(headers.get(i), Double.parseDouble(piece));
             }
-            return new LabeledMixedItem<>(new MixedItem("dummy", new HashMap<>(), values), Integer.parseInt(pieces[pieces.length - 1]));
+            return new LabeledItem<>(new Item("dummy", new HashMap<>(), values), Integer.parseInt(pieces[pieces.length - 1]));
         }).collect(toList());
 
         Collections.shuffle(data);
 
         int totalNumberOfItems = data.size();
         int numberOfTestItems = totalNumberOfItems / 3;
-        List<LabeledMixedItem<Integer>> testSet = data.stream().limit(numberOfTestItems).collect(toList());
-        List<LabeledMixedItem<Integer>> trainingSet = data.stream().skip(numberOfTestItems).collect(toList());
+        List<LabeledItem<Integer>> testSet = data.stream().limit(numberOfTestItems).collect(toList());
+        List<LabeledItem<Integer>> trainingSet = data.stream().skip(numberOfTestItems).collect(toList());
 
-        double average = data.stream().mapToDouble(LabeledMixedItem::getLabel).average().getAsDouble();
+        double average = data.stream().mapToDouble(LabeledItem::getLabel).average().getAsDouble();
         System.out.println("average value = " + average);
 
         RandomForestTrainer trainer = new RandomForestTrainer(new DecisionTreeTrainer(new Splitter<>()));
@@ -65,7 +65,7 @@ public class WineQualityDecisionExample {
         testWithGuessingMeanScore(testSet, (int) average);
     }
 
-    private static void testWithGuessingMeanScore(List<LabeledMixedItem<Integer>> testSet, int average) {
+    private static void testWithGuessingMeanScore(List<LabeledItem<Integer>> testSet, int average) {
         AtomicInteger totalWrongByAverage = new AtomicInteger(0);
         testSet.forEach(i -> {
             Integer evaluation = average;
@@ -77,7 +77,7 @@ public class WineQualityDecisionExample {
         System.out.println("meanGuessError = " + (totalWrongByAverage.doubleValue() / testSet.size()));
     }
 
-    private static AtomicInteger testSetTest(List<LabeledMixedItem<Integer>> testSet, RandomForest forest) {
+    private static AtomicInteger testSetTest(List<LabeledItem<Integer>> testSet, RandomForest forest) {
         AtomicInteger totalWrong = new AtomicInteger(0);
         testSet.forEach(i -> {
             Integer evaluation = forest.evaluate(i.getItem());

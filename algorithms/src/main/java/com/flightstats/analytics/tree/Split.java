@@ -3,9 +3,9 @@ package com.flightstats.analytics.tree;
 import java.util.List;
 
 public interface Split<T> {
-    List<LabeledMixedItem<T>> getLeft();
+    List<LabeledItem<T>> getLeft();
 
-    List<LabeledMixedItem<T>> getRight();
+    List<LabeledItem<T>> getRight();
 
     default int totalNumberOfItems() {
         return getLeft().size() + getRight().size();

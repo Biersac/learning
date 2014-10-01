@@ -7,7 +7,7 @@ public class Tree<T> {
     String name;
     TreeNode<T> rootNode;
 
-    public T evaluate(MixedItem item) {
+    public T evaluate(Item item) {
         return rootNode.evaluate(item);
     }
 
