@@ -3,6 +3,7 @@ package com.flightstats.analytics.tree;
 import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.Map;
 @ToString
 @AllArgsConstructor
 public class Item {
+    @Getter
     private final String id;
     private final Map<String, Integer> discreteValues;
     private final Map<String, Double> continuousValues;

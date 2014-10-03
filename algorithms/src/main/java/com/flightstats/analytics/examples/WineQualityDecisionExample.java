@@ -3,10 +3,7 @@ package com.flightstats.analytics.examples;
 import com.flightstats.analytics.tree.Item;
 import com.flightstats.analytics.tree.LabeledItem;
 import com.flightstats.analytics.tree.Splitter;
-import com.flightstats.analytics.tree.decision.DecisionTreeTrainer;
-import com.flightstats.analytics.tree.decision.RandomForest;
-import com.flightstats.analytics.tree.decision.RandomForestTrainer;
-import com.flightstats.analytics.tree.decision.TrainingResults;
+import com.flightstats.analytics.tree.decision.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -53,6 +50,11 @@ public class WineQualityDecisionExample {
 
         RandomForestTrainer trainer = new RandomForestTrainer(new DecisionTreeTrainer(new Splitter<>()));
         TrainingResults trainingResults = trainer.train("white wine", 100, trainingSet, attributes, -1);
+
+        ClusterFinder<Integer> clusterFinder = new ClusterFinder<>();
+        clusterFinder.findTrainingClusters(trainingResults.getTrainingData(), trainingResults.getItemProximities());
+        System.out.println();
+
         double outOfBagError = trainingResults.calculateOutOfBagError(-1);
         System.out.println("\noutOfBagError = " + outOfBagError);
 

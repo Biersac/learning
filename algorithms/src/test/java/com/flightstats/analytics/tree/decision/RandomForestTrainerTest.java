@@ -5,11 +5,9 @@ import com.flightstats.analytics.tree.LabeledItem;
 import com.flightstats.analytics.tree.Splitter;
 import lombok.AllArgsConstructor;
 import org.junit.Test;
+import org.la4j.matrix.Matrix;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Humidity.HIGH;
 import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Humidity.NORMAL;
@@ -17,6 +15,7 @@ import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Ou
 import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Temp.*;
 import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Wind.STRONG;
 import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Wind.WEAK;
+import static java.util.stream.Collectors.toSet;
 import static org.junit.Assert.assertEquals;
 
 public class RandomForestTrainerTest {
@@ -34,6 +33,15 @@ public class RandomForestTrainerTest {
         // so not all the trees return the same result. On average, though, these should be a good day for tennis.
         assertEquals((Integer) 1, tennis.evaluate(new Item("1", tennisData(RAIN, HOT, NORMAL, WEAK), new HashMap<>())));
         assertEquals((Integer) 1, tennis.evaluate(new Item("1", tennisData(RAIN, MILD, HIGH, WEAK), new HashMap<>())));
+
+        Matrix itemProximities = result.getItemProximities();
+        System.out.println("\nitemProximities = \n" + itemProximities);
+
+        Collection<Set<LabeledItem<Integer>>> clusters = new ClusterFinder().findTrainingClusters(result.getTrainingData(), result.getItemProximities());
+
+        for (Set<LabeledItem<Integer>> cluster : clusters) {
+            System.out.println("cluster = " + cluster.stream().map(i -> i.getItem().getId()).collect(toSet()));
+        }
     }
 
     public static List<String> tennisAttributes() {

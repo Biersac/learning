@@ -34,4 +34,8 @@ public class RandomForest {
         }
         return mostCommonLabel == null ? defaultLabel : mostCommonLabel;
     }
+
+    public int size() {
+        return trees.size();
+    }
 }

@@ -11,9 +11,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
@@ -104,6 +102,10 @@ public class OptDigitsExample {
         TrainingResults trainingResults = trainer.train("digits", 200, trainingData, attributes, -1);
         System.out.println("\noob error est. = " + trainingResults.calculateOutOfBagError(-1));
 
+        Collection<Set<LabeledItem<Integer>>> clusters = new ClusterFinder().findTrainingClusters(trainingResults.getTrainingData(), trainingResults.getItemProximities());
+//        clusters.forEach(cluster -> System.out.println("cluster = " + cluster.stream().map(i -> i.getItem().getId()).collect(toSet())));
+        clusters.forEach(cluster -> System.out.println("cluster size = " + cluster.size()));
+        System.out.println();
         return trainingResults.getForest();
     }
 
