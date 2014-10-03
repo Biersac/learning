@@ -19,16 +19,18 @@ import static java.util.stream.Collectors.toSet;
  */
 public class ClusterFinder<T> {
 
-    public Collection<Set<LabeledItem<T>>> findTrainingClusters(List<LabeledItem<T>> trainingData, Matrix itemProximities) {
+    public void exploreTrainingClusters(List<LabeledItem<T>> trainingData, Matrix itemProximities) {
         Matrix proximities = itemProximities.transform((i, j, value) -> (1 - value));
-        Collection<Set<Integer>> clusters = Collections.emptyList();
-        for (int k = 3; k < 100; k++) {
+        Collection<Set<Integer>> clusters;
+        for (int k = 3; k < Math.min(100, trainingData.size()); k++) {
             clusters = findClustersOfSize(k, trainingData, proximities);
             double inClusterSumOfSquares = clusters.stream().mapToDouble(c -> clusterSumOfSquares(c, proximities)).sum();
             System.out.println(k + "\t" + inClusterSumOfSquares);
         }
-        //currently returns the last cluster (which is way too big, almost certainly).
-        // todo: figure out how to divine the right cluster size from the data generated above.
+    }
+
+    public Collection<Set<LabeledItem<T>>> findTrainingClusters(int numberOfClusters, List<LabeledItem<T>> trainingData, Matrix itemProximities) {
+        Collection<Set<Integer>> clusters = findClustersOfSize(numberOfClusters, trainingData, itemProximities);
         return clusters.stream()
                 .map(s -> new HashSet<>(Collections2.transform(s, trainingData::get)))
                 .collect(toList());

@@ -13,9 +13,10 @@ import java.util.List;
 public class TrainingResults {
     RandomForest forest;
     Multimap<LabeledItem<Integer>, Tree<Integer>> outOfBagTreesForItem;
+
+    //these two items go together. consider squishing them together into a single class.
     Matrix itemProximities;
     List<LabeledItem<Integer>> trainingData;
-    public final ClusterFinder clusterFinder = new ClusterFinder();
 
     public float calculateOutOfBagError(Integer defaultLabel) {
         int total = 0;

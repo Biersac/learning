@@ -7,7 +7,10 @@ import lombok.AllArgsConstructor;
 import org.junit.Test;
 import org.la4j.matrix.Matrix;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Humidity.HIGH;
 import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Humidity.NORMAL;
@@ -15,7 +18,6 @@ import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Ou
 import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Temp.*;
 import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Wind.STRONG;
 import static com.flightstats.analytics.tree.decision.RandomForestTrainerTest.Wind.WEAK;
-import static java.util.stream.Collectors.toSet;
 import static org.junit.Assert.assertEquals;
 
 public class RandomForestTrainerTest {
@@ -37,11 +39,7 @@ public class RandomForestTrainerTest {
         Matrix itemProximities = result.getItemProximities();
         System.out.println("\nitemProximities = \n" + itemProximities);
 
-        Collection<Set<LabeledItem<Integer>>> clusters = new ClusterFinder().findTrainingClusters(result.getTrainingData(), result.getItemProximities());
-
-        for (Set<LabeledItem<Integer>> cluster : clusters) {
-            System.out.println("cluster = " + cluster.stream().map(i -> i.getItem().getId()).collect(toSet()));
-        }
+        new ClusterFinder<Integer>().exploreTrainingClusters(result.getTrainingData(), result.getItemProximities());
     }
 
     public static List<String> tennisAttributes() {

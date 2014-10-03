@@ -52,7 +52,8 @@ public class WineQualityDecisionExample {
         TrainingResults trainingResults = trainer.train("white wine", 100, trainingSet, attributes, -1);
 
         ClusterFinder<Integer> clusterFinder = new ClusterFinder<>();
-        clusterFinder.findTrainingClusters(trainingResults.getTrainingData(), trainingResults.getItemProximities());
+        clusterFinder.exploreTrainingClusters(trainingResults.getTrainingData(), trainingResults.getItemProximities());
+        //from the output from above, it looks like about 12-ish clusters is the right number.
         System.out.println();
 
         double outOfBagError = trainingResults.calculateOutOfBagError(-1);
