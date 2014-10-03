@@ -11,9 +11,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
@@ -104,6 +102,13 @@ public class OptDigitsExample {
         TrainingResults trainingResults = trainer.train("digits", 200, trainingData, attributes, -1);
         System.out.println("\noob error est. = " + trainingResults.calculateOutOfBagError(-1));
 
+        ClusterFinder<Integer> clusterFinder = new ClusterFinder<>();
+        clusterFinder.exploreTrainingClusters(trainingResults.getTrainingData(), trainingResults.getItemProximities());
+        //from the output of above, looking for the 'elbow' in the graph, it looks like about 12-14 clusters is about optimal.
+        Collection<Set<LabeledItem<Integer>>> clusters = clusterFinder.findTrainingClusters(12, trainingResults.getTrainingData(), trainingResults.getItemProximities());
+        //further analysis could be done on the clusters that are found.
+
+        System.out.println();
         return trainingResults.getForest();
     }
 

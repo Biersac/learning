@@ -8,6 +8,7 @@ import com.flightstats.analytics.tree.regression.RegressionRandomForest;
 import com.flightstats.analytics.tree.regression.RegressionRandomForestTrainer;
 import com.flightstats.analytics.tree.regression.RegressionTreeTrainer;
 import com.flightstats.analytics.tree.regression.TrainingResults;
+import lombok.SneakyThrows;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,7 +56,8 @@ public class WineQualityExample {
         test(testSet, average, loadedForest);
     }
 
-    private static Path constructModelFile() throws IOException {
+    @SneakyThrows
+    private static Path constructModelFile() {
         Path modelDirectory = Paths.get("models");
         if (!Files.isDirectory(modelDirectory)) {
             Files.createDirectory(modelDirectory);
@@ -63,7 +65,8 @@ public class WineQualityExample {
         return modelDirectory.resolve("winequality.rf.model.gz");
     }
 
-    private static List<LabeledItem<Double>> loadData(Path dataFile, List<String> attributes) throws IOException {
+    @SneakyThrows
+    private static List<LabeledItem<Double>> loadData(Path dataFile, List<String> attributes) {
         List<LabeledItem<Double>> data = Files.lines(dataFile).skip(1).map(line -> {
             String[] pieces = line.split(";");
 
@@ -79,7 +82,8 @@ public class WineQualityExample {
         return data;
     }
 
-    private static List<String> readAttributes(Path dataFile) throws IOException {
+    @SneakyThrows
+    private static List<String> readAttributes(Path dataFile) {
         String headerRow = Files.lines(dataFile).findFirst().get();
         List<String> headers = Arrays.stream(headerRow.split(";")).map(s -> s.replaceAll("\"", "")).collect(toList());
         return headers.stream().limit(headers.size() - 1).collect(toList());
@@ -94,7 +98,8 @@ public class WineQualityExample {
         return trainingResults.getForest();
     }
 
-    private static RegressionRandomForest loadModel(Path modelFile) throws IOException {
+    @SneakyThrows
+    private static RegressionRandomForest loadModel(Path modelFile) {
         RegressionRandomForest loadedForest;
         try (InputStream modelReader = new GZIPInputStream(Files.newInputStream(modelFile))) {
             loadedForest = new RandomForestPersister().loadRegression(modelReader);
@@ -102,7 +107,8 @@ public class WineQualityExample {
         return loadedForest;
     }
 
-    private static void saveModel(RegressionRandomForest forest, Path modelFile) throws IOException {
+    @SneakyThrows
+    private static void saveModel(RegressionRandomForest forest, Path modelFile) {
         try (OutputStream modelWriter = new GZIPOutputStream(Files.newOutputStream(modelFile))) {
             new RandomForestPersister().save(forest, modelWriter);
         }

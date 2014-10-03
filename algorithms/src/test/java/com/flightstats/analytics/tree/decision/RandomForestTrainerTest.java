@@ -5,6 +5,7 @@ import com.flightstats.analytics.tree.LabeledItem;
 import com.flightstats.analytics.tree.Splitter;
 import lombok.AllArgsConstructor;
 import org.junit.Test;
+import org.la4j.matrix.Matrix;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,6 +35,11 @@ public class RandomForestTrainerTest {
         // so not all the trees return the same result. On average, though, these should be a good day for tennis.
         assertEquals((Integer) 1, tennis.evaluate(new Item("1", tennisData(RAIN, HOT, NORMAL, WEAK), new HashMap<>())));
         assertEquals((Integer) 1, tennis.evaluate(new Item("1", tennisData(RAIN, MILD, HIGH, WEAK), new HashMap<>())));
+
+        Matrix itemProximities = result.getItemProximities();
+        System.out.println("\nitemProximities = \n" + itemProximities);
+
+        new ClusterFinder<Integer>().exploreTrainingClusters(result.getTrainingData(), result.getItemProximities());
     }
 
     public static List<String> tennisAttributes() {
