@@ -29,15 +29,15 @@ public class RandomForestTrainer {
 
         Multimap<LabeledItem<Integer>, Tree<Integer>> treesForItem = Multimaps.synchronizedMultimap(ArrayListMultimap.create());
         Matrix itemProximities = new Basic2DMatrix(trainingData.size(), trainingData.size());
-
+        IdentityHashMap<Tree<Integer>, Set<LabeledItem<Integer>>> outOfBagItemsByTree = new IdentityHashMap<>();
         List<Tree<Integer>> trees = Functional.times(numberOfTrees)
                 .parallel()
                 .map(x -> {
                     List<LabeledItem<Integer>> bootstrappedData = pickTrainingData(trainingData);
-                    Sets.SetView<LabeledItem<Integer>> outOfBagItems = Sets.difference(new HashSet<>(trainingData), new HashSet<>(bootstrappedData));
+                    Set<LabeledItem<Integer>> outOfBagItems = Sets.difference(new HashSet<>(trainingData), new HashSet<>(bootstrappedData));
                     Tree<Integer> tree = decisionTreeTrainer.train(name, bootstrappedData, attributes, featuresToUse, defaultLabel);
                     outOfBagItems.forEach(item -> treesForItem.put(item, tree));
-
+                    outOfBagItemsByTree.put(tree, outOfBagItems);
                     System.out.print(".");
                     return tree;
                 }).collect(toList());
@@ -45,7 +45,7 @@ public class RandomForestTrainer {
         System.out.println("\n calculating proximities...");
         calculateProximities(trainingData, itemProximities, trees);
 
-        return new TrainingResults(new RandomForest(trees, defaultLabel), treesForItem, itemProximities, trainingData);
+        return new TrainingResults(new RandomForest(trees, defaultLabel), treesForItem, itemProximities, trainingData, outOfBagItemsByTree);
     }
 
     private void calculateProximities(List<LabeledItem<Integer>> trainingData, Matrix itemProximities, List<Tree<Integer>> trees) {

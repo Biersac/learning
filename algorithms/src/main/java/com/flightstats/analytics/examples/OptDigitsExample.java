@@ -102,6 +102,14 @@ public class OptDigitsExample {
         TrainingResults trainingResults = trainer.train("digits", 200, trainingData, attributes, -1);
         System.out.println("\noob error est. = " + trainingResults.calculateOutOfBagError(-1));
 
+        TreeSet<AttributeImportance> attributeImportance = trainingResults.calculateAttributeImportance();
+        for (AttributeImportance imp : attributeImportance) {
+            System.out.println(imp.getAttribute() + "\t" + imp.getImportance());
+        }
+
+        System.out.println();
+        System.out.println("Cluster identification in process...");
+
         ClusterFinder<Integer> clusterFinder = new ClusterFinder<>();
         clusterFinder.exploreTrainingClusters(trainingResults.getTrainingData(), trainingResults.getItemProximities());
         //from the output of above, looking for the 'elbow' in the graph, it looks like about 12-14 clusters is about optimal.
