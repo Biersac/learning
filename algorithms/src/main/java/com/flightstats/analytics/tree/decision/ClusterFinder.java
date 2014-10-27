@@ -10,7 +10,7 @@ import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.flightstats.util.Functional.hashSetOf;
+import static com.flightstats.util.CollectionUtils.hashSetOf;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 

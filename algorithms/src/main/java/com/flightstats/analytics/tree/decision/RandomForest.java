@@ -5,17 +5,17 @@ import com.flightstats.analytics.tree.Tree;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode
 @ToString
 public class RandomForest {
-    private final List<Tree<Integer>> trees;
+    private final Collection<Tree<Integer>> trees;
     private final Integer defaultLabel;
 
-    public RandomForest(List<Tree<Integer>> trees, Integer defaultLabel) {
+    public RandomForest(Collection<Tree<Integer>> trees, Integer defaultLabel) {
         this.trees = trees;
         this.defaultLabel = defaultLabel;
     }
