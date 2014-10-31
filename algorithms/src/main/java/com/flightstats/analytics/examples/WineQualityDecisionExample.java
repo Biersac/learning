@@ -51,6 +51,13 @@ public class WineQualityDecisionExample {
         RandomForestTrainer trainer = new RandomForestTrainer(new DecisionTreeTrainer(new Splitter<>()));
         TrainingResults trainingResults = trainer.train("white wine", 100, trainingSet, attributes, -1);
 
+        TreeSet<AttributeImportance> attributeImportance = trainingResults.calculateAttributeImportance();
+        for (AttributeImportance imp : attributeImportance) {
+            System.out.println(imp.getAttribute() + "\t" + imp.getImportance());
+        }
+
+        System.out.println();
+        System.out.println("Cluster identification in process...");
         ClusterFinder<Integer> clusterFinder = new ClusterFinder<>();
         clusterFinder.exploreTrainingClusters(trainingResults.getTrainingData(), trainingResults.getItemProximities());
         //from the output from above, it looks like about 12-ish clusters is the right number.

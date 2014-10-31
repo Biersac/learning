@@ -14,7 +14,7 @@ import org.la4j.matrix.dense.Basic2DMatrix;
 import java.security.SecureRandom;
 import java.util.*;
 
-import static java.util.stream.Collectors.toList;
+import static com.flightstats.util.Functional.times;
 
 public class RandomForestTrainer {
     private final DecisionTreeTrainer decisionTreeTrainer;
@@ -29,26 +29,24 @@ public class RandomForestTrainer {
 
         Multimap<LabeledItem<Integer>, Tree<Integer>> treesForItem = Multimaps.synchronizedMultimap(ArrayListMultimap.create());
         Matrix itemProximities = new Basic2DMatrix(trainingData.size(), trainingData.size());
-
-        List<Tree<Integer>> trees = Functional.times(numberOfTrees)
-                .parallel()
-                .map(x -> {
-                    List<LabeledItem<Integer>> bootstrappedData = pickTrainingData(trainingData);
-                    Sets.SetView<LabeledItem<Integer>> outOfBagItems = Sets.difference(new HashSet<>(trainingData), new HashSet<>(bootstrappedData));
-                    Tree<Integer> tree = decisionTreeTrainer.train(name, bootstrappedData, attributes, featuresToUse, defaultLabel);
-                    outOfBagItems.forEach(item -> treesForItem.put(item, tree));
-
-                    System.out.print(".");
-                    return tree;
-                }).collect(toList());
+        IdentityHashMap<Tree<Integer>, Set<LabeledItem<Integer>>> outOfBagItemsByTree = new IdentityHashMap<>();
+        Collection<Tree<Integer>> trees = Functional.timesParallel(numberOfTrees, () -> {
+            List<LabeledItem<Integer>> bootstrappedData = pickTrainingData(trainingData);
+            Set<LabeledItem<Integer>> outOfBagItems = Sets.difference(new HashSet<>(trainingData), new HashSet<>(bootstrappedData));
+            Tree<Integer> tree = decisionTreeTrainer.train(name, bootstrappedData, attributes, featuresToUse, defaultLabel);
+            outOfBagItems.forEach(item -> treesForItem.put(item, tree));
+            outOfBagItemsByTree.put(tree, outOfBagItems);
+            System.out.print(".");
+            return tree;
+        });
 
         System.out.println("\n calculating proximities...");
         calculateProximities(trainingData, itemProximities, trees);
 
-        return new TrainingResults(new RandomForest(trees, defaultLabel), treesForItem, itemProximities, trainingData);
+        return new TrainingResults(new RandomForest(trees, defaultLabel), treesForItem, itemProximities, trainingData, outOfBagItemsByTree);
     }
 
-    private void calculateProximities(List<LabeledItem<Integer>> trainingData, Matrix itemProximities, List<Tree<Integer>> trees) {
+    private void calculateProximities(List<LabeledItem<Integer>> trainingData, Matrix itemProximities, Collection<Tree<Integer>> trees) {
         trees.forEach(tree -> {
             Map<List<TreeNode<Integer>>, List<Integer>> proximityMap = new HashMap<>();
             for (int i = 0; i < trainingData.size(); i++) {
@@ -85,10 +83,8 @@ public class RandomForestTrainer {
 
     private List<LabeledItem<Integer>> pickTrainingData(List<LabeledItem<Integer>> trainingData) {
         int size = trainingData.size();
-        List<LabeledItem<Integer>> dataToUse = new ArrayList<>(size);
         //by the algorithm, we pick <size> items, "with replacement" [i.e. we can pick the same thing more than once], from the training data.
-        Functional.times(size).forEach(x -> dataToUse.add(trainingData.get(secureRandom.nextInt(size))));
-        return dataToUse;
+        return new ArrayList<>(times(size, () -> trainingData.get(secureRandom.nextInt(size))));
     }
 
 }

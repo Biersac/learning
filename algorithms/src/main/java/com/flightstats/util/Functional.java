@@ -1,10 +1,10 @@
 package com.flightstats.util;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 public class Functional {
     public static Stream<Void> times(int number) {
@@ -19,9 +19,15 @@ public class Functional {
         times(n).parallel().forEach(x -> r.run());
     }
 
-    public static <T> Set<T> hashSetOf(T... ts) {
-        Set<T> results = new HashSet<>();
-        Collections.addAll(results, ts);
-        return results;
+    public static <T> Collection<T> times(int n, NoThrowCallable<T> callable) {
+        return times(n).map(x -> callable.call()).collect(toList());
+    }
+
+    public static <T> Collection<T> timesParallel(int n, NoThrowCallable<T> callable) {
+        return times(n).parallel().map(x -> callable.call()).collect(toList());
+    }
+
+    public static interface NoThrowCallable<T> {
+        T call();
     }
 }

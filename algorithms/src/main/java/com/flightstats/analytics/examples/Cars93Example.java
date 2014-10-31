@@ -48,12 +48,12 @@ public class Cars93Example {
             String[] fields = line.split(",");
             double price = Double.parseDouble(fields[5]);
             Map<String, Double> continuousValues = new HashMap<>();
-            Map<String, Integer> discreteValues = new HashMap<>();
-
-            addDrivetrain(fields[10], discreteValues);
             addHorsePower(fields[13], continuousValues);
-            addManualAvailable(fields[16], discreteValues);
             addWheelBase(fields[20], continuousValues);
+
+            Map<String, Integer> discreteValues = new HashMap<>();
+            addDrivetrain(fields[10], discreteValues);
+            addManualAvailable(fields[16], discreteValues);
             addType(fields[3], discreteValues);
 
             return new LabeledItem<>(new Item(fields[0], discreteValues, continuousValues), price);

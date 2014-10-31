@@ -1,6 +1,6 @@
 package com.flightstats.analytics.tree.decision;
 
-import com.flightstats.util.Functional;
+import com.flightstats.util.CollectionUtils;
 import org.junit.Test;
 import org.la4j.matrix.dense.Basic2DMatrix;
 
@@ -18,7 +18,7 @@ public class ClusterFinderTest {
                 {0.0, 0.0, 1.0, 0.0},
         });
 
-        Integer centroid = testClass.findCentroid(Functional.hashSetOf(0, 1, 2), proximities);
+        Integer centroid = testClass.findCentroid(CollectionUtils.hashSetOf(0, 1, 2), proximities);
         assertEquals((Integer) 2, centroid);
     }
 

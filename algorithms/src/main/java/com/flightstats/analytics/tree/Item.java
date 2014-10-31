@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,5 +30,17 @@ public class Item {
 
     public List<String> getAttributes() {
         return new ArrayList<>(Sets.union(discreteValues.keySet(), continuousValues.keySet()));
+    }
+
+    public Item withContinuousValue(String attribute, Double value) {
+        Map<String, Double> newValues = new HashMap<>(continuousValues);
+        newValues.put(attribute, value);
+        return new Item(id, discreteValues, newValues);
+    }
+
+    public Item withDiscreteValue(String attribute, Integer value) {
+        Map<String, Integer> newValues = new HashMap<>(discreteValues);
+        newValues.put(attribute, value);
+        return new Item(id, newValues, continuousValues);
     }
 }
